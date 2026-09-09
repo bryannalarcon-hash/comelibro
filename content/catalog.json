@@ -1,0 +1,562 @@
+{
+  "version": 1,
+  "objectives": [
+    {
+      "id": "present-meaning",
+      "version": 1,
+      "label": "Present forms in narration",
+      "description": "Recognize present-indicative forms and decide what they mean in their clause, including the older temporal use of haber in ha mucho tiempo. Assessment is limited to explicit present forms and this opening construction.",
+      "cvc": ["2:9.1.1", "8:4.3.11"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "imperfect-background",
+      "version": 1,
+      "label": "Imperfect for background and habit",
+      "description": "Interpret an imperfect verb as an ongoing background state or a repeated past habit when context supports that reading. Assessment does not cover every contrast between the imperfect and preterite.",
+      "cvc": ["2:9.1.2"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "negation-scope",
+      "version": 1,
+      "label": "Scope of no",
+      "description": "Identify the verb or expression negated by no in short clauses and distinguish no quiero from the historical time expression no ha mucho tiempo.",
+      "cvc": ["6:1.7.1"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "article-adjective-agreement",
+      "version": 1,
+      "label": "Articles and noun-phrase agreement",
+      "description": "Match an article or descriptive adjective to its noun by gender and number in a simple noun phrase. Assessment excludes verb agreement and agreement across long-distance ellipsis.",
+      "cvc": ["2:2.1.1", "2:3.1", "2:10.3"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "acordarse-de",
+      "version": 1,
+      "label": "Acordarse de",
+      "description": "Use and interpret acordarse de as a pronominal verb meaning to remember, including an attached pronoun on an infinitive such as acordarme.",
+      "cvc": ["2:7.1.4", "2:9.4.1", "2:12.2.5"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "possessive-cuyo",
+      "version": 1,
+      "label": "Possessive relative cuyo",
+      "description": "Connect cuyo, cuya, cuyos, or cuyas to an antecedent while making the form agree with the possessed noun. Assessment uses explicit relative clauses with a clear antecedent.",
+      "cvc": ["2:2.1.3", "2:15.2"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "nominal-quantity",
+      "version": 1,
+      "label": "Quantity and comparison between nouns",
+      "description": "Interpret basic quantities, part-to-whole expressions, and comparisons such as más vaca que carnero where the compared terms are nouns.",
+      "cvc": ["2:6.1", "2:15.3.8", "8:2.2", "8:2.4"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "weekday-habit",
+      "version": 1,
+      "label": "Weekdays as recurring time",
+      "description": "Interpret a plural weekday with the definite article, such as los sábados, as a recurring habit rather than one dated event.",
+      "cvc": ["2:3.1", "8:4.3.12"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "pronominal-se",
+      "version": 1,
+      "label": "Pronominal se with the subject",
+      "description": "Interpret se when a named subject performs an action involving or presenting that same subject, as in se honraba or se viste. Assessment excludes passive and impersonal se.",
+      "cvc": ["2:7.1.4"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "historical-vocabulary",
+      "version": 1,
+      "label": "Historical vocabulary from context",
+      "description": "Use a supplied contextual gloss to distinguish people, objects, foods, garments, fabrics, and older forms in the novel's opening. Recall is limited to the explicitly taught opening words.",
+      "cvc": ["8:5.7", "9:5.3", "9:5.5", "9:12.2", "9:15.2"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    }
+  ],
+  "placement": [
+    {
+      "id": "placement-present-1",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "present-meaning",
+      "prompt": "Choose the form that completes the current fact: Ahora Lucía ___ en Toledo.",
+      "choices": ["vivía", "vive", "vivió", "vivir"],
+      "answerIndex": 1,
+      "explanation": "Vive is present indicative and states where Lucía lives now.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-present-2",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "present-meaning",
+      "prompt": "In an older narrative, what does No ha mucho tiempo most nearly mean?",
+      "choices": ["Not long ago", "There is no time left", "For a very long time", "Time has stopped"],
+      "answerIndex": 0,
+      "explanation": "Here ha is an older impersonal use of haber in a time expression; the whole phrase means not long ago.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-imperfect-1",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "imperfect-background",
+      "prompt": "What does De niño, Tomás leía cada noche tell us?",
+      "choices": ["Tomás will read tonight", "Tomás read once", "Reading was Tomás's repeated childhood habit", "Tomás has never read"],
+      "answerIndex": 2,
+      "explanation": "Leía is imperfect, and cada noche makes the repeated past habit explicit.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-imperfect-2",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "imperfect-background",
+      "prompt": "In Cuando llegué, Ana cocinaba, what was already in progress?",
+      "choices": ["Ana's cooking", "My arrival", "A future meal", "Nothing"],
+      "answerIndex": 0,
+      "explanation": "Cocinaba presents cooking as background activity in progress when the arrival occurred.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-negation-1",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "negation-scope",
+      "prompt": "What does No quiero cerrar la puerta mean?",
+      "choices": ["I want to open the door", "I do not want to close the door", "The door cannot close", "I closed no door"],
+      "answerIndex": 1,
+      "explanation": "No negates quiero: the speaker lacks the desire to close the door.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-agreement-1",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "article-adjective-agreement",
+      "prompt": "Choose the phrase with matching gender and number.",
+      "choices": ["una espada antigua", "un espada antiguo", "unas espada antiguas", "una espada antiguos"],
+      "answerIndex": 0,
+      "explanation": "Espada is feminine singular, so una and antigua match it.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-agreement-2",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "article-adjective-agreement",
+      "prompt": "Complete the noun phrase: ___ libros viejos.",
+      "choices": ["La", "El", "Los", "Unas"],
+      "answerIndex": 2,
+      "explanation": "Libros is masculine plural, so the matching definite article is los.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-acordarse-1",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "acordarse-de",
+      "prompt": "Complete the sentence: Quiero ___ de la cita.",
+      "choices": ["acordar", "acordarme", "me acuerdo", "recordarme a"],
+      "answerIndex": 1,
+      "explanation": "After quiero, the infinitive can carry the pronoun: acordarme de la cita.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-acordarse-2",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "acordarse-de",
+      "prompt": "Choose the missing preposition: Carmen no se acuerda ___ la dirección.",
+      "choices": ["a", "con", "de", "por"],
+      "answerIndex": 2,
+      "explanation": "The pronominal verb is acordarse de algo.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-cuyo-1",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "possessive-cuyo",
+      "prompt": "In Conocí a la autora cuyo libro ganó el premio, whose book won?",
+      "choices": ["The author's", "The prize's", "The speaker's", "An unknown reader's"],
+      "answerIndex": 0,
+      "explanation": "Cuyo links libro to the antecedent la autora and agrees with libro.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-cuyo-2",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "possessive-cuyo",
+      "prompt": "Complete the sentence: Visitamos una casa ___ ventanas miran al mar.",
+      "choices": ["cuyo", "cuya", "cuyos", "cuyas"],
+      "answerIndex": 3,
+      "explanation": "Cuyas agrees with the possessed noun ventanas, which is feminine plural.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-quantity-1",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "nominal-quantity",
+      "prompt": "What is being compared in Hay más café que leche?",
+      "choices": ["Two actions", "Amounts of two drinks", "Two people", "Past and present"],
+      "answerIndex": 1,
+      "explanation": "Más café que leche compares the quantities of two nouns without repeating a verb.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-weekday-1",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "weekday-habit",
+      "prompt": "What does Los martes estudio con Julia normally express?",
+      "choices": ["A recurring Tuesday habit", "One unspecified day", "Last Tuesday only", "A Tuesday in the future only"],
+      "answerIndex": 0,
+      "explanation": "The plural weekday with los normally marks a recurring schedule.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-se-1",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "pronominal-se",
+      "prompt": "In El viajero se viste antes del amanecer, who gets dressed?",
+      "choices": ["The traveler", "An unnamed person", "The sunrise", "A group of travelers"],
+      "answerIndex": 0,
+      "explanation": "Se refers back to the named subject el viajero in this pronominal use.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    },
+    {
+      "id": "placement-vocabulary-1",
+      "version": 1,
+      "objectiveVersion": 1,
+      "objectiveId": "historical-vocabulary",
+      "prompt": "In the opening of Don Quijote, which gloss best fits hidalgo?",
+      "choices": ["A member of the lower nobility", "A farm animal", "A wool fabric", "A weekday meal"],
+      "answerIndex": 0,
+      "explanation": "Hidalgo names a historical social rank: a man of the lower nobility.",
+      "type": "multiple-choice",
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dq-opening-1-place-and-memory",
+      "version": 1,
+      "bookId": "don-quixote",
+      "passageId": "dq-opening-1-3",
+      "title": "Place, memory, and the opening time frame",
+      "estimatedMinutes": 6,
+      "readingGoal": "Understand why the narrator withholds the place name and place the hidalgo's life in the past.",
+      "objectiveIds": ["present-meaning", "imperfect-background", "negation-scope", "acordarse-de", "possessive-cuyo", "historical-vocabulary"],
+      "explanation": "The opening moves through a relative clause before reaching its main past description. In de cuyo nombre no quiero acordarme, cuyo connects nombre to lugar, while acordarme requires de. The phrase no ha mucho tiempo means not long ago in this older use; vivía then supplies the continuing past background.",
+      "examples": [
+        {"es": "Conocí a un músico cuyo nombre no recuerdo.", "en": "I met a musician whose name I do not remember."},
+        {"es": "No hace mucho tiempo, vivía cerca del río.", "en": "Not long ago, I lived near the river."}
+      ],
+      "glossaryIds": ["lugar-settlement", "hidalgo", "astillero", "adarga", "rocin", "galgo"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"},
+      "questions": [
+        {
+          "id": "dq-l1-q1",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "negation-scope",
+          "prompt": "Why does the opening not give the place's name?",
+          "choices": ["The place had no name", "The narrator says he does not want to remember it", "The hidalgo forgot where he lived", "The manuscript is damaged"],
+          "answerIndex": 1,
+          "explanation": "No quiero acordarme says that the narrator does not want to remember the name.",
+          "type": "target-comprehension",
+          "sourceSpan": {"sentenceId": "dq-1.1-1", "text": "de cuyo nombre no quiero acordarme"},
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l1-q2",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "possessive-cuyo",
+          "prompt": "In de cuyo nombre, what does cuyo connect nombre to?",
+          "choices": ["lugar", "Mancha", "tiempo", "hidalgo"],
+          "answerIndex": 0,
+          "explanation": "Cuyo introduces a possessive relation: the name belongs to the previously mentioned lugar.",
+          "type": "target-form",
+          "sourceSpan": {"sentenceId": "dq-1.1-1", "text": "de cuyo nombre"},
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l1-q3",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "possessive-cuyo",
+          "prompt": "Fresh example: In Saludé al vecino cuya hija estudia música, who is the daughter related to?",
+          "choices": ["The neighbor", "The speaker", "Music", "An unnamed teacher"],
+          "answerIndex": 0,
+          "explanation": "Cuya links hija to el vecino and agrees with the feminine singular noun hija.",
+          "type": "fresh-transfer",
+          "sourceSpan": null,
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l1-q4",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "acordarse-de",
+          "prompt": "Fresh example: Complete Quiero ___ de tu consejo.",
+          "choices": ["acordar", "acordarme", "acuerdo a", "me acordar"],
+          "answerIndex": 1,
+          "explanation": "The infinitive keeps the pronominal marker and the complement begins with de: acordarme de.",
+          "type": "fresh-transfer",
+          "sourceSpan": null,
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l1-q5",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "imperfect-background",
+          "prompt": "What role does vivía play in the opening?",
+          "choices": ["It commands the hidalgo to live", "It describes the hidalgo's continuing past situation", "It predicts his future home", "It reports one completed arrival"],
+          "answerIndex": 1,
+          "explanation": "The imperfect vivía establishes the background situation in which the story begins.",
+          "type": "target-comprehension",
+          "sourceSpan": {"sentenceId": "dq-1.1-1", "text": "vivía un hidalgo"},
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        }
+      ]
+    },
+    {
+      "id": "dq-opening-2-meals-and-means",
+      "version": 1,
+      "bookId": "don-quixote",
+      "passageId": "dq-opening-1-3",
+      "title": "Meals, weekly habits, and household means",
+      "estimatedMinutes": 7,
+      "readingGoal": "Follow the long food list and understand what it says about the hidalgo's recurring expenses.",
+      "objectiveIds": ["imperfect-background", "article-adjective-agreement", "nominal-quantity", "weekday-habit", "historical-vocabulary"],
+      "explanation": "The foods form a long plural subject whose verb, consumían, appears near the end. The imperfect presents a customary expense. Los sábados, los viernes, and los domingos describe a weekly routine. Algo más vaca que carnero compares amounts of foods, and las tres partes de su hacienda is glossed here as three quarters of his income.",
+      "examples": [
+        {"es": "Los jueves comíamos más sopa que pan.", "en": "On Thursdays we used to eat more soup than bread."},
+        {"es": "El alquiler consumía gran parte de sus ingresos.", "en": "The rent used up a large part of their income."}
+      ],
+      "glossaryIds": ["olla", "salpicon", "duelos-y-quebrantos", "palomino", "hacienda", "tres-partes"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"},
+      "questions": [
+        {
+          "id": "dq-l2-q1",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "imperfect-background",
+          "prompt": "What does consumían tell us about the listed meals?",
+          "choices": ["They regularly used up much of his income", "They were eaten only once", "They earned money for him", "They were planned for the future"],
+          "answerIndex": 0,
+          "explanation": "The imperfect presents this spending as part of the household's customary past routine.",
+          "type": "target-comprehension",
+          "sourceSpan": {"sentenceId": "dq-1.1-2", "text": "consumían las tres partes de su hacienda"},
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l2-q2",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "nominal-quantity",
+          "prompt": "With the passage gloss supplied, how much of his income did the meals consume?",
+          "choices": ["About one tenth", "Three quarters", "Exactly half", "All of it"],
+          "answerIndex": 1,
+          "explanation": "The edition's opening annotation interprets las tres partes as three of four parts, or three quarters.",
+          "type": "target-comprehension",
+          "sourceSpan": {"sentenceId": "dq-1.1-2", "text": "las tres partes de su hacienda"},
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l2-q3",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "weekday-habit",
+          "prompt": "What do los sábados, los viernes, and los domingos signal?",
+          "choices": ["Three recurring days in a weekly pattern", "Three dates in one month", "A single weekend", "The order of three chapters"],
+          "answerIndex": 0,
+          "explanation": "Plural weekdays with the definite article describe repeated weekly occasions.",
+          "type": "target-form",
+          "sourceSpan": {"sentenceId": "dq-1.1-2", "text": "duelos y quebrantos los sábados, lentejas los viernes, algún palomino de añadidura los domingos"},
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l2-q4",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "nominal-quantity",
+          "prompt": "Fresh example: What does Preparaban más arroz que verduras compare?",
+          "choices": ["The quality of two recipes", "The amounts of rice and vegetables", "Two cooking times", "Past and present meals"],
+          "answerIndex": 1,
+          "explanation": "Más arroz que verduras compares quantities of two nouns.",
+          "type": "fresh-transfer",
+          "sourceSpan": null,
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l2-q5",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "weekday-habit",
+          "prompt": "Fresh example: Which sentence clearly describes a recurring habit?",
+          "choices": ["El lunes salí temprano.", "Los lunes salía temprano.", "Este lunes voy a salir.", "Ayer fue lunes."],
+          "answerIndex": 1,
+          "explanation": "Los lunes marks recurring Mondays, and salía presents the repeated past habit.",
+          "type": "fresh-transfer",
+          "sourceSpan": null,
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        }
+      ]
+    },
+    {
+      "id": "dq-opening-3-clothes-and-reference",
+      "version": 1,
+      "bookId": "don-quixote",
+      "passageId": "dq-opening-1-3",
+      "title": "Clothing, reference, and self-presentation",
+      "estimatedMinutes": 7,
+      "readingGoal": "Recover who spends the remaining income, what the clothes are, and how the hidalgo presents himself on weekdays.",
+      "objectiveIds": ["imperfect-background", "article-adjective-agreement", "pronominal-se", "historical-vocabulary"],
+      "explanation": "El resto della points back to the hacienda in the previous sentence; della is the older written form de ella. The clothing list is the subject of concluían, which here means used up, while el resto della is placed first as the object. After y, the subject changes back to the hidalgo: se honraba describes how he dressed or presented himself. Several unfamiliar words name garments and wool fabrics, so their contextual glosses carry more meaning than a broad clothing tag.",
+      "examples": [
+        {"es": "El resto del dinero lo consumían los viajes.", "en": "Travel used up the rest of the money."},
+        {"es": "Entre semana se vestía con ropa sencilla.", "en": "On weekdays he dressed in simple clothes."}
+      ],
+      "glossaryIds": ["della", "concluian", "sayo", "velarte", "calzas", "velludo", "pantuflos", "vellori", "lo-mas-fino"],
+      "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"},
+      "questions": [
+        {
+          "id": "dq-l3-q1",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "historical-vocabulary",
+          "prompt": "What relationship does the first clause describe?",
+          "choices": ["The clothes used up the remainder of his income", "The income repaired the clothes", "The hidalgo sold all his clothes", "The fabrics produced new income"],
+          "answerIndex": 0,
+          "explanation": "Concluían means used up here, and the postposed clothing list is what used up el resto della.",
+          "type": "target-comprehension",
+          "sourceSpan": {"sentenceId": "dq-1.1-3", "text": "El resto della concluían sayo de velarte, calzas de velludo"},
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l3-q2",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "historical-vocabulary",
+          "prompt": "What does della refer back to?",
+          "choices": ["The hacienda or income", "The Mancha", "The olla", "The festival"],
+          "answerIndex": 0,
+          "explanation": "Della is de ella, and ella resumes hacienda from the previous sentence.",
+          "type": "target-comprehension",
+          "sourceSpan": {"sentenceId": "dq-1.1-3", "text": "El resto della"},
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l3-q3",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "pronominal-se",
+          "prompt": "Who is described by se honraba con su vellorí?",
+          "choices": ["The hidalgo", "The fabric", "The slippers", "The weekdays"],
+          "answerIndex": 0,
+          "explanation": "After the coordinated y, the understood subject returns to the hidalgo; se belongs to that pronominal construction.",
+          "type": "target-comprehension",
+          "sourceSpan": {"sentenceId": "dq-1.1-3", "text": "se honraba con su vellorí"},
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l3-q4",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "pronominal-se",
+          "prompt": "Fresh example: In El actor se vistió antes de salir, who was dressed?",
+          "choices": ["The actor himself", "An unnamed child", "The audience", "Nobody"],
+          "answerIndex": 0,
+          "explanation": "Se points back to el actor in this reflexive or pronominal use.",
+          "type": "fresh-transfer",
+          "sourceSpan": null,
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l3-q5",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "article-adjective-agreement",
+          "prompt": "Fresh example: Choose the agreeing phrase.",
+          "choices": ["la capa oscuro", "los capa oscuras", "las capas oscuras", "el capas oscuro"],
+          "answerIndex": 2,
+          "explanation": "Capas is feminine plural, so both las and oscuras agree with it.",
+          "type": "fresh-transfer",
+          "sourceSpan": null,
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        },
+        {
+          "id": "dq-l3-q6",
+          "version": 1,
+          "objectiveVersion": 1,
+          "objectiveId": "historical-vocabulary",
+          "prompt": "Which group contains fabrics rather than garments?",
+          "choices": ["sayo, calzas, pantuflos", "velarte, velludo, vellorí", "hidalgo, rocín, galgo", "olla, lentejas, palomino"],
+          "answerIndex": 1,
+          "explanation": "Velarte, velludo, and vellorí name fabrics; sayo, calzas, and pantuflos are garments or footwear.",
+          "type": "target-vocabulary",
+          "sourceSpan": {"sentenceId": "dq-1.1-3", "text": "El resto della concluían sayo de velarte, calzas de velludo para las fiestas con sus pantuflos de lo mismo, y los días de entre semana se honraba con su vellorí de lo más fino."},
+          "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}
+        }
+      ]
+    }
+  ],
+  "sources": [
+    "cvc-opening: Centro Virtual Cervantes, annotated Part I, Chapter I — https://cvc.cervantes.es/literatura/clasicos/quijote/edicion/parte1/cap01/",
+    "rae-haber: Real Academia Española, Diccionario panhispánico de dudas, haber §4.2 — https://www.rae.es/dpd/haber",
+    "local-tag-audit: research/don_quijote_first_three_sentence_tags.md, a proposed manual mapping that preserves the downloaded edition's spelling"
+  ],
+  "glossary": [
+    {"id": "lugar-settlement", "term": "lugar", "meaning": "a small settlement in this context, not merely an unspecified location", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "hidalgo", "term": "hidalgo", "meaning": "a man belonging to the lower nobility in historical Spain", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "astillero", "term": "astillero", "meaning": "a rack used to hold lances in this passage", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "adarga", "term": "adarga", "meaning": "a leather shield", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "rocin", "term": "rocín", "meaning": "an ordinary or worn riding horse", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "galgo", "term": "galgo", "meaning": "a greyhound", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "olla", "term": "olla", "meaning": "a cooked pot dish or stew in this household menu", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "salpicon", "term": "salpicón", "meaning": "a dish of chopped leftover meat in this historical menu", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "duelos-y-quebrantos", "term": "duelos y quebrantos", "meaning": "the name of a prepared dish; its meaning should not be guessed from the ordinary senses of the separate words", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "palomino", "term": "palomino", "meaning": "a young pigeon served as food", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "hacienda", "term": "hacienda", "meaning": "the hidalgo's means or income in this passage", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "tres-partes", "term": "las tres partes", "meaning": "three quarters in the annotated historical reading of this sentence", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "della", "term": "della", "meaning": "the older written contraction de ella; ella refers to hacienda here", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "concluian", "term": "concluían", "meaning": "used up or exhausted in this sentence", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "sayo", "term": "sayo", "meaning": "a tunic-like outer garment", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "velarte", "term": "velarte", "meaning": "a woollen cloth used for the sayo", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "calzas", "term": "calzas", "meaning": "close-fitting leg garments or hose", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "velludo", "term": "velludo", "meaning": "a velvet-like fabric used for the calzas", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "pantuflos", "term": "pantuflos", "meaning": "slippers or loose footwear", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "vellori", "term": "vellorí", "meaning": "a fine woollen cloth used for weekday clothing", "sourceId": "cvc-opening", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}},
+    {"id": "lo-mas-fino", "term": "de lo más fino", "meaning": "of especially fine quality, using the degree pattern de lo más plus an adjective", "sourceId": "local-tag-audit", "review": {"status": "pending", "reviewer": null, "reason": "Awaiting independent semantic review"}}
+  ]
+}
