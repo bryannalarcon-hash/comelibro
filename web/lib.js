@@ -1,0 +1,29 @@
+export async function api(path, options = {}) {
+  let response;
+  try { response = await fetch(`/api${path}`, { credentials: 'same-origin', ...options, headers: { ...(options.body && !(options.body instanceof Blob) ? {'Content-Type':'application/json'} : {}), ...options.headers }, body: options.body && !(options.body instanceof Blob) ? JSON.stringify(options.body) : options.body }); }
+  catch { throw new Error('Could not reach Comelibro. Check your connection, then try again. Your entries are still here.'); }
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(data.error || `Request failed (${response.status}). Please try again.`);
+    error.status = response.status; error.code = data.code;
+    if (response.status === 401 && !path.startsWith('/auth/')) window.dispatchEvent(new Event('session-expired'));
+    throw error;
+  }
+  return data;
+}
+export const post = (path, body = {}, headers = {}) => api(path, {method:'POST', body, headers});
+export const uid = () => crypto.randomUUID();
+export function stored(key, fallback = null) { try { return JSON.parse(localStorage.getItem(`comelibro:${key}`)) ?? fallback; } catch { return fallback; } }
+export function save(key, value) { try { if (value === null) localStorage.removeItem(`comelibro:${key}`); else localStorage.setItem(`comelibro:${key}`, JSON.stringify(value)); } catch {} }
+export function attempt(key, body) {
+  // Keep the entire submitted payload stable after a lost response, including timing.
+  const storageKey = `comelibro:attempt:${key}`;
+  try { const previous = JSON.parse(sessionStorage.getItem(storageKey)); if (previous) return previous; } catch {}
+  const value = {...body,attemptId:uid()};
+  try { sessionStorage.setItem(storageKey,JSON.stringify(value)); } catch {}
+  return value;
+}
+export function clearAttempt(key) { try { sessionStorage.removeItem(`comelibro:attempt:${key}`); } catch {} }
+export function chapterSentences(book, chapterId) { return book?.chapters?.find(c=>c.id===chapterId)?.sentences || []; }
+export function textOf(value) { return typeof value === 'string' ? value : value == null ? '' : JSON.stringify(value,null,2); }
+export function date(value) { return value ? new Date(value).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'}) : 'Unavailable'; }
