@@ -9,6 +9,11 @@ export const PDF_LIMITS = Object.freeze({ bytes: 5 * 1024 * 1024, pages: 10, tex
 const root = fileURLToPath(new URL('../', import.meta.url));
 const error = (code, message) => Object.assign(new Error(message), { code });
 
+export function validatePdfResult(result) {
+  if (!result || !Array.isArray(result.pages) || !result.pages.length || result.pages.length > PDF_LIMITS.pages || result.pages.some((page, index) => page?.page !== index + 1 || typeof page.text !== 'string') || result.pages.reduce((sum, page) => sum + page.text.length, 0) > PDF_LIMITS.text || !Array.isArray(result.warnings) || result.warnings.length > PDF_LIMITS.pages * 2 || result.warnings.some(warning => typeof warning !== 'string' || warning.length > 1000)) throw error('PDF_RESOURCE', 'This PDF returned invalid processing data. Try another file.');
+  return { pages: result.pages.map(page => ({ page: page.page, text: page.text })), warnings: [...result.warnings] };
+}
+
 export async function extractPdf({ path, signal, onProgress = () => {} }) {
   signal?.throwIfAborted();
   const file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
@@ -29,15 +34,19 @@ export async function extractPdf({ path, signal, onProgress = () => {} }) {
     return await new Promise((resolve, reject) => {
       const args = ['--cpu=45', '--core=0', '--as=8589934592', '--fsize=33554432', '--nofile=128', '--', '/usr/bin/bwrap',
         '--ro-bind', '/usr', '/usr', '--ro-bind', '/lib', '/lib', '--ro-bind', '/lib64', '/lib64',
-        '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp', '--dir', '/work',
+        '--tmpfs', '/usr/share/fonts', '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp', '--dir', '/work',
         '--ro-bind', join(directory, 'input.pdf'), '/work/input.pdf',
         '--ro-bind', join(root, 'server/pdf-worker.mjs'), '/worker.mjs',
-        '--ro-bind', join(root, 'node_modules'), '/node_modules',
+        '--dir', '/node_modules', '--dir', '/node_modules/pdfjs-dist', '--dir', '/node_modules/pdfjs-dist/legacy', '--dir', '/node_modules/pdfjs-dist/legacy/build',
+        '--ro-bind', join(root, 'node_modules/pdfjs-dist/legacy/build/pdf.mjs'), '/node_modules/pdfjs-dist/legacy/build/pdf.mjs',
+        '--ro-bind', join(root, 'node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'), '/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs',
+        '--dir', '/node_modules/@napi-rs', '--ro-bind', join(root, 'node_modules/@napi-rs/canvas'), '/node_modules/@napi-rs/canvas',
+        '--ro-bind', join(root, 'node_modules/@napi-rs/canvas-linux-x64-gnu'), '/node_modules/@napi-rs/canvas-linux-x64-gnu',
         '--ro-bind', join(root, 'content/tessdata'), '/tessdata',
         '--unshare-all', '--die-with-parent', '--new-session', '--clearenv',
         '--setenv', 'HOME', '/tmp', '--setenv', 'PATH', '/usr/bin', '--setenv', 'OMP_THREAD_LIMIT', '1',
         '--chdir', '/work', '/usr/bin/node', '--max-old-space-size=256', '/worker.mjs'];
-      const child = spawn('/usr/bin/prlimit', args, { detached: true, stdio: ['ignore', 'pipe', 'pipe'] });
+      const child = spawn('/usr/bin/prlimit', args, { detached: true, stdio: ['ignore', 'pipe', 'pipe'], env: { PATH: '/usr/bin' } });
       let settled = false, pending = '', count = 0, result;
       const finish = (err, value) => {
         if (settled) return;
@@ -70,7 +79,8 @@ export async function extractPdf({ path, signal, onProgress = () => {} }) {
       });
       child.on('close', code => {
         if (code !== 0 || !result?.pages?.length) return finish(error('PDF_RESOURCE', 'This PDF could not be read within safe processing limits. Try a smaller or clearer file.'));
-        finish(null, result);
+        try { finish(null, validatePdfResult(result)); }
+        catch (err) { finish(err); }
       });
     });
   } finally { await rm(directory, { recursive: true, force: true }); }

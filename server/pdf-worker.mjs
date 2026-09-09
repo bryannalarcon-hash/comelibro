@@ -43,13 +43,15 @@ try {
         ({ stdout: ocr } = await promisify(execFile)('/usr/bin/tesseract', [image, 'stdout', '--tessdata-dir', '/tessdata', '-l', 'spa', '--psm', '3'], { timeout: 15000, maxBuffer: 800000, env: { PATH: '/usr/bin', HOME: '/tmp', OMP_THREAD_LIMIT: '1' } }));
       } catch { fail('PDF_OCR', `Page ${page} could not be read as a scan. Try a clearer PDF.`); }
       finally { await unlink(image).catch(() => {}); }
-      text = ocr.trim();
-      warnings.push(`Page ${page} used Spanish OCR. Check names, accents, and punctuation before confirming.`);
+      if (ocr.trim()) {
+        text = [text, ocr.trim()].filter(Boolean).join('\n');
+        warnings.push(`Page ${page} used Spanish OCR. Check names, accents, and punctuation before confirming.`);
+      } else if (text) warnings.push(`Page ${page} has little selectable text. Check it before confirming.`);
       canvas.width = canvas.height = 1;
     }
     total += text.length;
     if (total > 200000) fail('PDF_TEXT', 'This PDF contains too much text. Try a shorter passage.');
-    if (!text) warnings.push(`Page ${page} has no readable text. Add corrected text before confirming.`);
+    if (!text) warnings.push(`Page ${page} has no readable text. You can leave it blank or add corrected text before confirming.`);
     pages.push({ page, text });
     pdfPage.cleanup();
   }

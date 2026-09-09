@@ -74,7 +74,7 @@ async function invoke({ kind, tools, schema, signal, emit }) {
   const report = event => emit({ invocationId, task: kind, ...event });
   report({ phase: 'start', state: 'starting', model: AI_MODEL, promptVersion: `comelibro-${kind}-v1`, prompt: prompts[kind], limits: AI_LIMITS, allowedTools: Object.keys(tools), usage: null });
   return await new Promise((resolve, reject) => {
-    const child = spawn('/usr/bin/systemd-run', ['--user', '--scope', '--quiet', '--unit', `comelibro-ai-${invocationId}`, '--property=MemoryMax=768M', '--property=TasksMax=64', '--property=RuntimeMaxSec=115s', '/usr/bin/prlimit', ...sandboxArgs()], { detached: true, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, XDG_RUNTIME_DIR: '/run/user/1000' } });
+    const child = spawn('/usr/bin/systemd-run', ['--user', '--scope', '--quiet', '--unit', `comelibro-ai-${invocationId}`, '--property=MemoryMax=768M', '--property=TasksMax=64', '--property=RuntimeMaxSec=115s', '/usr/bin/prlimit', ...sandboxArgs()], { detached: true, stdio: ['pipe', 'pipe', 'pipe'], env: { PATH: '/usr/bin', XDG_RUNTIME_DIR: '/run/user/1000' } });
     let settled = false, pending = '', bytes = 0, calls = 0, nextId = 0, answer, usage = null;
     const requests = new Map(), called = new Set();
     const finish = (err, result) => {

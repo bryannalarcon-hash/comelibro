@@ -1,14 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, writeFile, readFile, rm, access } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { PDFDocument, PDFName, PDFHexString } from 'pdf-lib';
-import { extractPdf, PDF_LIMITS } from '../pdf.mjs';
+import { pathToFileURL } from 'node:url';
+import { execFile as execFileCallback } from 'node:child_process';
+import { promisify } from 'node:util';
+import { PDFDocument, PDFName, PDFHexString, StandardFonts } from 'pdf-lib';
+import { extractPdf, PDF_LIMITS, validatePdfResult } from '../pdf.mjs';
 import { runTask, validateProposal, applyReview, redactEvent } from '../ai.mjs';
 const root = new URL('../../', import.meta.url);
 const fixture = name => new URL(`content/fixtures/${name}`, root).pathname;
 const directory = await mkdtemp(join(tmpdir(), 'comelibro-runtime-test-'));
+const execFile = promisify(execFileCallback);
 test.after(() => rm(directory, { recursive: true, force: true }));
 async function pdf(name, pageCount, dimensions = [612, 792], text = '') {
   const document = await PDFDocument.create();
@@ -38,6 +42,45 @@ test('real networkless Spanish OCR reads image-only fixture', async () => {
   assert.match(result.pages[0].text, /cuyo escritorio/);
   assert.ok(result.warnings.some(w => w.includes('Spanish OCR')));
   assert.ok(progress.some(p => p.includes('Spanish scan')));
+});
+
+test('short standard-font text survives unavailable render fonts', async () => {
+  const pdf = await PDFDocument.create(), page = pdf.addPage([500, 200]);
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  page.drawText('biblioteca biblioteca biblioteca', { x: 40, y: 100, size: 32, font });
+  const path = join(directory, 'short-standard-font.pdf');
+  await writeFile(path, await pdf.save());
+  const result = await extractPdf({ path });
+  assert.equal(result.pages[0].text, 'biblioteca biblioteca biblioteca');
+  assert.match(result.warnings[0], /little selectable text/);
+});
+test('mixed selectable text and scanned content are both retained without host fonts', async () => {
+  const pdf = await PDFDocument.create(), page = pdf.addPage([612, 1000]);
+  const [scan] = await pdf.embedPdf(await readFile(fixture('sample-scan.pdf')));
+  page.drawPage(scan, { x: 0, y: 100, width: 612, height: 792 });
+  page.drawText('Nota breve', { x: 20, y: 950, size: 16, font: await pdf.embedFont(StandardFonts.Helvetica) });
+  const path = join(directory, 'mixed-font-and-scan.pdf');
+  await writeFile(path, await pdf.save());
+  const result = await extractPdf({ path });
+  assert.match(result.pages[0].text, /Nota breve/);
+  assert.match(result.pages[0].text, /Inés visita la biblioteca/);
+  assert.ok(result.warnings.some(warning => warning.includes('Spanish OCR')));
+});
+test('runtime package excludes optional PDF assets and still performs real OCR', async () => {
+  const output = join(directory, 'runtime-package');
+  await execFile(process.execPath, ['scripts/package-runtime.mjs', output], { cwd: new URL('../..', import.meta.url) });
+  await assert.rejects(access(join(output, 'node_modules/pdfjs-dist/standard_fonts')));
+  const manifest = JSON.parse(await readFile(join(output, 'RUNTIME_MANIFEST.json')));
+  assert.ok(manifest.files.some(file => file.path.endsWith('skia.linux-x64-gnu.node')));
+  assert.ok(manifest.files.every(file => !file.path.includes('standard_fonts')));
+  const packaged = await import(pathToFileURL(join(output, 'server/pdf.mjs')));
+  const result = await packaged.extractPdf({ path: fixture('sample-scan.pdf') });
+  assert.match(result.pages[0].text, /Inés visita la biblioteca/);
+});
+test('parent rejects malformed isolated-worker results', () => {
+  assert.throws(() => validatePdfResult({ pages: [{ page: 2, text: 'wrong index' }], warnings: [] }), { code: 'PDF_RESOURCE' });
+  assert.throws(() => validatePdfResult({ pages: [{ page: 1, text: 'x'.repeat(PDF_LIMITS.text + 1) }], warnings: [] }), { code: 'PDF_RESOURCE' });
+  assert.deepEqual(validatePdfResult({ pages: [{ page: 1, text: 'bien', ignored: true }], warnings: [], ignored: true }), { pages: [{ page: 1, text: 'bien' }], warnings: [] });
 });
 test('actual byte, malformed PDF, page, page-dimension, and text limits reject', async () => {
   const oversized = join(directory, 'oversized.pdf');
