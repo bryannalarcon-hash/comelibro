@@ -2,7 +2,7 @@ node_modules/
 dist/
 .env
 .env.*
-runtime/
+/runtime/
 *.sqlite*
 playwright-report/
 test-results/
