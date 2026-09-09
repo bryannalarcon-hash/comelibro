@@ -1,0 +1,30 @@
+import { DatabaseSync } from 'node:sqlite';
+import { mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
+export function openStore(path) {
+  if(path !== ':memory:') mkdirSync(dirname(path),{recursive:true,mode:0o700});
+  const db = new DatabaseSync(path);
+  db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
+    CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY,email TEXT UNIQUE NOT NULL,name TEXT NOT NULL,password TEXT NOT NULL,verified INTEGER NOT NULL DEFAULT 0,role TEXT NOT NULL DEFAULT 'learner',settings TEXT NOT NULL DEFAULT '{}',placement TEXT NOT NULL DEFAULT '{}',createdAt TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS sessions(hash TEXT PRIMARY KEY,userId TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,expiresAt TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS tokens(hash TEXT PRIMARY KEY,userId TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,kind TEXT NOT NULL,expiresAt TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS books(id TEXT PRIMARY KEY,userId TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,data TEXT NOT NULL,status TEXT NOT NULL,path TEXT,createdAt TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS positions(userId TEXT REFERENCES users(id) ON DELETE CASCADE,bookId TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(userId,bookId));
+    CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY,userId TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,bookId TEXT,kind TEXT NOT NULL,status TEXT NOT NULL,progress REAL NOT NULL DEFAULT 0,message TEXT,input TEXT NOT NULL,result TEXT,error TEXT,idempotencyKey TEXT,createdAt TEXT NOT NULL,updatedAt TEXT NOT NULL,UNIQUE(userId,kind,idempotencyKey));
+    CREATE TABLE IF NOT EXISTS quotas(userId TEXT REFERENCES users(id) ON DELETE CASCADE,day TEXT,kind TEXT,count INTEGER NOT NULL,PRIMARY KEY(userId,day,kind));
+    CREATE TABLE IF NOT EXISTS curricula(id TEXT PRIMARY KEY,userId TEXT REFERENCES users(id) ON DELETE CASCADE,bookId TEXT NOT NULL,version INTEGER NOT NULL,data TEXT NOT NULL,createdAt TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS lessons(id TEXT PRIMARY KEY,userId TEXT REFERENCES users(id) ON DELETE CASCADE,bookId TEXT NOT NULL,data TEXT NOT NULL,createdAt TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS attempts(id TEXT NOT NULL,userId TEXT REFERENCES users(id) ON DELETE CASCADE,questionId TEXT NOT NULL,questionVersion TEXT NOT NULL,objectiveId TEXT,objectiveVersion TEXT,context TEXT NOT NULL,choiceIndex INTEGER,correct INTEGER NOT NULL,assisted INTEGER NOT NULL,scored INTEGER NOT NULL,elapsedMs INTEGER,createdAt TEXT NOT NULL,response TEXT NOT NULL,PRIMARY KEY(userId,id));
+    CREATE INDEX IF NOT EXISTS attempts_question ON attempts(userId,questionId,questionVersion);
+    CREATE TABLE IF NOT EXISTS assistance(userId TEXT REFERENCES users(id) ON DELETE CASCADE,questionId TEXT,questionVersion TEXT,kind TEXT,createdAt TEXT,PRIMARY KEY(userId,questionId,questionVersion));
+    CREATE TABLE IF NOT EXISTS objectives(userId TEXT REFERENCES users(id) ON DELETE CASCADE,objectiveId TEXT,version TEXT,probability REAL NOT NULL,successes INTEGER NOT NULL,itemCount INTEGER NOT NULL,updatedAt TEXT NOT NULL,PRIMARY KEY(userId,objectiveId,version));
+    CREATE TABLE IF NOT EXISTS bkt_history(id TEXT PRIMARY KEY,userId TEXT REFERENCES users(id) ON DELETE CASCADE,attemptId TEXT NOT NULL,objectiveId TEXT NOT NULL,data TEXT NOT NULL,createdAt TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS vocabulary(id TEXT PRIMARY KEY,userId TEXT REFERENCES users(id) ON DELETE CASCADE,bookId TEXT,sentenceId TEXT,front TEXT NOT NULL,back TEXT NOT NULL,card TEXT NOT NULL,due TEXT NOT NULL,createdAt TEXT NOT NULL,UNIQUE(userId,front,back));
+    CREATE TABLE IF NOT EXISTS reviews(id TEXT,userId TEXT REFERENCES users(id) ON DELETE CASCADE,itemId TEXT NOT NULL,data TEXT NOT NULL,createdAt TEXT NOT NULL,PRIMARY KEY(userId,id));
+    CREATE TABLE IF NOT EXISTS review_queue(id TEXT PRIMARY KEY,userId TEXT REFERENCES users(id) ON DELETE CASCADE,bookId TEXT,kind TEXT NOT NULL,status TEXT NOT NULL,data TEXT NOT NULL,resolution TEXT,createdAt TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS events(id TEXT PRIMARY KEY,userId TEXT REFERENCES users(id) ON DELETE CASCADE,jobId TEXT,kind TEXT NOT NULL,data TEXT NOT NULL,createdAt TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS operational(key TEXT PRIMARY KEY,value TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS throttles(key TEXT PRIMARY KEY,count INTEGER NOT NULL,expiresAt INTEGER NOT NULL);
+  `);
+  return db;
+}
