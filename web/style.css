@@ -11,3 +11,4 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 .lesson-source{margin:25px 0}.lesson-source summary{font-size:.87rem}.lesson-source blockquote{font-family:Georgia,serif;font-size:1.13rem;margin:12px 0;max-height:350px;overflow:auto;border-left:3px solid var(--ochre);padding-left:20px}.lesson-source p{line-height:1.85}.glossary{margin:25px 0;border-top:1px solid var(--line);padding-top:22px}.glossary h3{font-size:1.1rem}.glossary dl{font-size:.9rem;line-height:1.7}.glossary dt{font-family:Georgia,serif;font-weight:700;font-size:1.04rem;margin-top:13px}.glossary dd{margin:4px 0 0;color:var(--muted)}
+.upload-complete-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px}
