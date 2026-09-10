@@ -8,7 +8,7 @@ import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { PDFDocument, PDFName, PDFHexString, StandardFonts } from 'pdf-lib';
 import { extractPdf, PDF_LIMITS, validatePdfResult } from '../pdf.mjs';
-import { runTask, validateProposal, applyReview, redactEvent } from '../ai.mjs';
+import { runTask, validateProposal, applyReview, shuffleChoices, redactEvent } from '../ai.mjs';
 const root = new URL('../../', import.meta.url);
 const fixture = name => new URL(`content/fixtures/${name}`, root).pathname;
 const directory = await mkdtemp(join(tmpdir(), 'comelibro-runtime-test-'));
@@ -24,7 +24,7 @@ async function pdf(name, pageCount, dimensions = [612, 792], text = '') {
   await writeFile(path, await document.save()); return path;
 }
 const input = { book: { id: 'synthetic', title: 'La biblioteca' }, passage: { id: 'p1', title: 'Una visita', sentences: [{ id: 's1', text: 'Cada sábado, Inés visita la biblioteca de su barrio.', page: 1, tags: [] }] }, objectives: [{ id: 'weekday-habit', version: '1', label: 'Weekdays and recurring habits', description: 'Understand cada followed by a weekday as an expression of recurring habit.', cvc: [] }], evidence: [], currentCurriculum: null };
-const proposal = () => ({ title: 'Reading about a weekly visit', reason: 'Teach this unknown objective.', lessons: [{ title: 'A weekly visit', objectiveIds: ['weekday-habit'], explanation: 'Cada sábado means every Saturday. Notice the recurring habit.', examples: [{ es: 'Cada martes, Pedro canta.', en: 'Every Tuesday, Pedro sings.' }], estimatedMinutes: 5, questions: ['fresh-transfer', 'target-comprehension'].map((type, i) => ({ id: `q${i}`, version: '1', objectiveId: 'weekday-habit', objectiveVersion: '1', type, prompt: i ? 'How often does Inés visit the library?' : 'Cada lunes, Ana corre. How often does Ana run?', choices: i ? ['Every Saturday', 'One Saturday only'] : ['Every Monday', 'One Monday only'], answerIndex: 0, explanation: 'Cada indicates recurrence.', sourceSpan: { sentenceId: 's1', text: 'Cada sábado' }, review: { status: 'approved', reviewer: 'author', version: '1', reason: 'Self-approval is not evidence.' } })) }] });
+const proposal = () => ({ title: 'Reading about a weekly visit', reason: 'Teach this unknown objective.', lessons: [{ title: 'A weekly visit', objectiveIds: ['weekday-habit'], explanation: 'Cada sábado means every Saturday. Notice the recurring habit.', examples: [{ es: 'Cada martes, Pedro canta.', en: 'Every Tuesday, Pedro sings.' }], estimatedMinutes: 5, questions: ['fresh-transfer', 'target-comprehension', 'target-form', 'target-comprehension'].map((type, i) => ({ id: `q${i}`, version: '1', objectiveId: 'weekday-habit', objectiveVersion: '1', type, prompt: i ? 'How often does Inés visit the library?' : 'Cada lunes, Ana corre. How often does Ana run?', choices: i ? ['Every Saturday', 'One Saturday only'] : ['Every Monday', 'One Monday only'], answerIndex: 0, explanation: 'Cada indicates recurrence.', sourceSpan: { sentenceId: 's1', text: 'Cada sábado' }, review: { status: 'approved', reviewer: 'author', version: '1', reason: 'Self-approval is not evidence.' } })) }] });
 const receipts = p => ({ items: p.lessons.flatMap(l => l.questions.map(q => ({ questionId: q.id, version: q.version, sourceGrounding: true, spanishAccuracy: true, answerKey: true, objectiveAlignment: true, status: 'approved', reason: 'The exact Spanish recurrence construction supports this one objective and key.' }))) });
 
 test('real text PDF extraction preserves Spanish, pages, and progress', async () => {
@@ -116,11 +116,39 @@ test('structural validation enforces canonical versions, exact spans and fresh p
   p = proposal(); p.lessons[0].examples[0].es = 'Cada lunes, Ana corre.'; assert.throws(() => validateProposal(p, input), { code: 'AI_OUTPUT' });
   p = proposal(); p.lessons[0].questions[0].answerIndex = 10; assert.throws(() => validateProposal(p, input), { code: 'AI_OUTPUT' });
 });
+test('questions reuse the objective source anchor instead of drifting to another contained span', () => {
+  const p = proposal(); p.lessons[0].questions[0].sourceSpan.text = 'visita';
+  assert.throws(() => validateProposal(p, input), { code: 'AI_OUTPUT' });
+});
+
+test('generation scope is one focused first lesson with four to six questions', () => {
+  let p = proposal(); p.lessons.push(structuredClone(p.lessons[0])); assert.throws(() => validateProposal(p, input), { code: 'AI_OUTPUT' });
+  p = proposal(); p.lessons[0].questions.pop(); assert.throws(() => validateProposal(p, input), { code: 'AI_OUTPUT' });
+  p = proposal(); p.lessons[0].questions.push(...p.lessons[0].questions.slice(0, 3).map((q, i) => ({ ...q, id: `extra-${i}` }))); assert.throws(() => validateProposal(p, input), { code: 'AI_OUTPUT' });
+  p = proposal(); p.lessons[0].objectiveIds.push('weekday-habit'); assert.throws(() => validateProposal(p, input), { code: 'AI_OUTPUT' });
+  const expanded = { ...input, objectives: [...input.objectives, { ...input.objectives[0], id: 'second' }, { ...input.objectives[0], id: 'third' }] };
+  p = proposal(); p.lessons[0].objectiveIds.push('second', 'third'); assert.throws(() => validateProposal(p, expanded), { code: 'AI_OUTPUT' });
+});
+
+test('choice normalization preserves each exact correct value and all assessment content', () => {
+  const original = proposal();
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const shuffled = shuffleChoices(structuredClone(original));
+    for (let i = 0; i < original.lessons[0].questions.length; i++) {
+      const before = original.lessons[0].questions[i], after = shuffled.lessons[0].questions[i];
+      assert.equal(after.choices[after.answerIndex], before.choices[before.answerIndex]);
+      assert.deepEqual([...after.choices].sort(), [...before.choices].sort());
+      assert.deepEqual({ ...after, choices: before.choices, answerIndex: before.answerIndex }, before);
+    }
+    validateProposal(shuffled, input);
+  }
+});
+
 test('independent receipts overwrite self-review; missing or failed checks cannot approve', () => {
   const p = proposal(), review = receipts(p); review.items[0].answerKey = false;
   applyReview(p, review);
   assert.equal(p.lessons[0].questions[0].review.status, 'uncertain');
-  assert.match(p.lessons[0].questions[1].review.reviewer, /independent-semantic-v1/);
+  assert.match(p.lessons[0].questions[1].review.reviewer, /independent-semantic-v4/);
   assert.equal(p.lessons[0].questions[1].review.status, 'approved');
   assert.throws(() => applyReview(proposal(), { items: [] }), { code: 'AI_REVIEW' });
   const wrongVersion = receipts(proposal()); wrongVersion.items[0].version = '2';
@@ -149,7 +177,7 @@ test('LIVE curriculum uses source/objective/evidence tools and separate independ
   const starts = events.filter(e => e.phase === 'start');
   assert.equal(starts.length, 2); assert.notEqual(starts[0].invocationId, starts[1].invocationId);
   for (const name of ['task_source', 'canonical_objectives', 'learner_evidence', 'proposed_items']) assert.ok(events.some(e => e.phase === 'tool' && e.tool === name));
-  assert.ok(output.lessons.every(l => l.questions.every(q => q.review.reviewer.includes('independent-semantic-v1') && q.review.version === q.version)));
+  assert.ok(output.lessons.every(l => l.questions.every(q => q.review.reviewer.includes('independent-semantic-v4') && q.review.version === q.version)));
   await writeFile(new URL('evidence/runtime/live-curriculum.json', root), JSON.stringify({ actual: true, date: new Date().toISOString(), input, output, events }, null, 2));
 });
 test('LIVE cancellation terminates the actual isolated account process after startup', { skip: process.env.RUN_LIVE_AI !== '1', timeout: 15000 }, async () => {
