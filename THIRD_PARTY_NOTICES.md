@@ -1,6 +1,6 @@
 # Third-party notices and material boundaries
 
-Checked against the installed workspace on 2026-09-17. This is an engineering inventory, not a legal or contest-eligibility opinion. Exact installed production-package inventory and machine evidence are in `evidence/runtime-review/`.
+Checked against the installed workspace on 2026-09-17. This is an engineering inventory, not a legal or contest-eligibility opinion. Historical runtime evidence is in `evidence/runtime-review/`; the replacement PDF artifact and notices are recorded in `evidence/pdfium-review/`. A complete release inventory remains required.
 
 ## Application dependencies
 
@@ -28,7 +28,7 @@ The app's 15 narrow objectives and contextual glosses use Instituto Cervantes CV
 
 ## AI disclosure
 
-OpenAI models assisted with code, research synthesis, curriculum drafting, and recorded independent semantic review. Generated learning content is labeled in the product where applicable and remains subject to deterministic validation and review status. The private optional runtime invokes Codex CLI 0.154.0 (package declares Apache-2.0) and model `gpt-5.6-luna` through the owner's ChatGPT-backed account. Model service terms and account authorization are separate from the CLI code license. Provider support for public account-backed execution remains unresolved, so public AI is disabled by default; no API billing substitute is used.
+OpenAI models assisted with code, research synthesis, curriculum drafting, and recorded independent semantic review. Generated learning content is labeled in the product where applicable and remains subject to deterministic validation and review status. The private optional runtime invokes Codex CLI 0.154.0 (package declares Apache-2.0) through the owner's ChatGPT-backed account: `gpt-5.6-sol` at medium effort generates and separately reviews lessons, while `gpt-5.6-luna` at low effort provides contextual help. Events retain prompt/model versions. Model service terms and account authorization are separate from the CLI code license. Provider support for public account-backed execution remains unresolved, so public AI is disabled by default; no API billing substitute is used.
 
 ## External host prerequisites
 

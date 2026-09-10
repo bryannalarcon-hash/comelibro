@@ -20,4 +20,4 @@ The relevant distinction is factual reference versus copied expression: [Copyrig
 
 ## Remaining package work
 
-The worker-only package already excludes unused PDF.js font and codec assets. The full release packager must also exclude research inputs and preserve applicable dependency notices. Native canvas component notices remain an explicit unresolved packaging issue in `THIRD_PARTY_NOTICES.md`; this material-source review does not close that separate issue.
+Canvas and PDF.js have been replaced with pinned PDFium. The worker-only package retains exact wheel, font and runtime component notices, with author checks in `pdfium-review/`. The full release must also exclude research inputs and preserve all applicable dependency notices. Independent replacement and full-artifact audits remain required; this material-source review does not close those separate checks.
