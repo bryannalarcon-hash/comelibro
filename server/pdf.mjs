@@ -5,12 +5,12 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 
-export const PDF_LIMITS = Object.freeze({ bytes: 5 * 1024 * 1024, pages: 10, text: 200000, pixels: 4000000, decodedImagePixels: 16000000, timeoutMs: 90000 });
+export const PDF_LIMITS = Object.freeze({ bytes: 5 * 1024 * 1024, pages: 10, text: 200000, pixels: 4000000, decodedImagePixels: 16000000, objects: 10000, formDepth: 15, addressSpaceBytes: 1073741824, cpuSeconds: 45, timeoutMs: 90000 });
 const root = fileURLToPath(new URL('../', import.meta.url));
 const error = (code, message) => Object.assign(new Error(message), { code });
 
 export function validatePdfResult(result) {
-  if (!result || !Array.isArray(result.pages) || !result.pages.length || result.pages.length > PDF_LIMITS.pages || result.pages.some((page, index) => page?.page !== index + 1 || typeof page.text !== 'string') || result.pages.reduce((sum, page) => sum + page.text.length, 0) > PDF_LIMITS.text || !Array.isArray(result.warnings) || result.warnings.length > PDF_LIMITS.pages * 2 || result.warnings.some(warning => typeof warning !== 'string' || warning.length > 1000)) throw error('PDF_RESOURCE', 'This PDF returned invalid processing data. Try another file.');
+  if (!result || !Array.isArray(result.pages) || !result.pages.length || result.pages.length > PDF_LIMITS.pages || result.pages.some((page, index) => page?.page !== index + 1 || typeof page.text !== 'string') || result.pages.reduce((sum, page) => sum + page.text.length, 0) > PDF_LIMITS.text || !result.pages.some(page => page.text.trim()) || !Array.isArray(result.warnings) || result.warnings.length > PDF_LIMITS.pages * 2 || result.warnings.some(warning => typeof warning !== 'string' || warning.length > 1000)) throw error('PDF_RESOURCE', 'This PDF returned invalid processing data. Try another file.');
   return { pages: result.pages.map(page => ({ page: page.page, text: page.text })), warnings: [...result.warnings] };
 }
 
@@ -32,20 +32,16 @@ export async function extractPdf({ path, signal, onProgress = () => {} }) {
     await writeFile(join(directory, 'input.pdf'), bytes, { mode: 0o600 });
     signal?.throwIfAborted();
     return await new Promise((resolve, reject) => {
-      const args = ['--cpu=45', '--core=0', '--as=8589934592', '--fsize=33554432', '--nofile=128', '--', '/usr/bin/bwrap',
+      const args = ['--cpu=45', '--core=0', '--as=1073741824', '--fsize=33554432', '--nofile=128', '--', '/usr/bin/bwrap',
         '--ro-bind', '/usr', '/usr', '--ro-bind', '/lib', '/lib', '--ro-bind', '/lib64', '/lib64',
         '--tmpfs', '/usr/share/fonts', '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp', '--dir', '/work',
         '--ro-bind', join(directory, 'input.pdf'), '/work/input.pdf',
-        '--ro-bind', join(root, 'server/pdf-worker.mjs'), '/worker.mjs',
-        '--dir', '/node_modules', '--dir', '/node_modules/pdfjs-dist', '--dir', '/node_modules/pdfjs-dist/legacy', '--dir', '/node_modules/pdfjs-dist/legacy/build',
-        '--ro-bind', join(root, 'node_modules/pdfjs-dist/legacy/build/pdf.mjs'), '/node_modules/pdfjs-dist/legacy/build/pdf.mjs',
-        '--ro-bind', join(root, 'node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'), '/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs',
-        '--dir', '/node_modules/@napi-rs', '--ro-bind', join(root, 'node_modules/@napi-rs/canvas'), '/node_modules/@napi-rs/canvas',
-        '--ro-bind', join(root, 'node_modules/@napi-rs/canvas-linux-x64-gnu'), '/node_modules/@napi-rs/canvas-linux-x64-gnu',
+        '--ro-bind', join(root, 'server/pdf-worker.py'), '/worker.py',
+        '--ro-bind', join(root, 'runtime/pdfium'), '/pdfium',
         '--ro-bind', join(root, 'content/tessdata'), '/tessdata',
         '--unshare-all', '--die-with-parent', '--new-session', '--clearenv',
         '--setenv', 'HOME', '/tmp', '--setenv', 'PATH', '/usr/bin', '--setenv', 'OMP_THREAD_LIMIT', '1',
-        '--chdir', '/work', '/usr/bin/node', '--max-old-space-size=256', '/worker.mjs'];
+        '--chdir', '/work', '/usr/bin/python3', '-I', '-B', '/worker.py'];
       const child = spawn('/usr/bin/prlimit', args, { detached: true, stdio: ['ignore', 'pipe', 'pipe'], env: { PATH: '/usr/bin' } });
       let settled = false, pending = '', count = 0, result;
       const finish = (err, value) => {
@@ -68,7 +64,7 @@ export async function extractPdf({ path, signal, onProgress = () => {} }) {
         let index;
         while ((index = pending.indexOf('\n')) !== -1 && !settled) {
           const line = pending.slice(0, index); pending = pending.slice(index + 1);
-          if (!line.startsWith('{')) continue; // PDF.js can emit bounded diagnostics on stdout.
+          if (!line.startsWith('{')) continue; // Ignore bounded native-library diagnostics.
           try {
             const event = JSON.parse(line);
             if (event.type === 'progress') onProgress(event.progress, event.message);

@@ -16,6 +16,8 @@ APP_ORIGIN=http://127.0.0.1:3300 npm start
 
 Open `http://127.0.0.1:3300`. The backend binds to localhost. Private SQLite data and uploads default to the ignored `runtime/` directory; `DATA_DIR` can select a separate private directory. Do not serve that directory or the repository through a static web server.
 
+PDF processing additionally requires Python 3, Bubblewrap, Tesseract, the included Spanish traineddata and the exact wheel pinned in `requirements-pdf.txt`, installed under `runtime/pdfium`. Installation, build hashes, retained licenses and resource limits are documented in [the PDF runtime record](evidence/pdfium-review/README.md). The wheel and host tools are already installed on this VPS; `npm ci` alone does not install them on another machine.
+
 Real account verification and password recovery require SMTP configuration. The service uses authenticated STARTTLS with certificate validation; its configuration names are in `server/mail.mjs`. Synthetic email capture is permitted only in isolated tests. Never put credentials in this repository or browser code.
 
 ## Use the app

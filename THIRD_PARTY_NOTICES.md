@@ -10,11 +10,11 @@ Checked against the installed workspace on 2026-09-17. This is an engineering in
 | Nodemailer | 10.0.10 | MIT-0 | Server email transport. |
 | React / React DOM | 19.3.0 | MIT | Browser application; bundled by the build. |
 | ts-fsrs | 5.4.2 | MIT | Server recall scheduling. |
-| PDF.js (`pdfjs-dist`) | 6.3.289 | Apache-2.0 | PDF parsing/rendering. The reproducible runtime package contains only the legacy runtime modules and top-level license. Its `standard_fonts`, CMaps, ICC profiles, WASM codecs, viewer, and other unused assets are excluded. |
-| `@napi-rs/canvas` | 1.0.9 | MIT | Linux x64 glibc native canvas used to rasterize scans. The runtime package includes the upstream MIT text and only the matching native binary. |
+| pypdfium2 | 5.13.0 | Apache-2.0 / BSD-3-Clause | Exact hash-pinned Linux x64 wheel; all wrapper and PDFium dependency notices retained. Documentation/examples use CC-BY-4.0; upstream author attribution is retained in wheel metadata and source headers. |
+| PDFium | 153.0.7999.0 | BSD-style plus permissive dependencies | Default build without V8/XFA. Embedded FreeType uses FTL; built-in Foxit font arrays use PDFium's BSD-style license. Full reviewed component/license manifest: `evidence/pdfium-review/license-manifest.json`. |
 | PDF-LIB | 1.17.1 | MIT | Creates synthetic PDF fixtures; excluded from the server runtime package. |
 
-The full installed package tree includes build and test tools that are not delivered by the runtime packager, including Vite 8.3.0, Playwright 1.63.0, and their platform binaries. `evidence/runtime-review/installed-packages.json` records every installed package and whether npm classifies it as production or development.
+The installed package tree includes build and test tools that are not delivered by the runtime packager, including Vite 8.3.0, Playwright 1.63.0, and their platform binaries. `evidence/runtime-review/installed-packages.json` preserves the earlier PDF.js-era inventory; the current lockfile removes canvas/PDF.js and classifies PDF-LIB as development-only. Final full-application release packaging needs its own dependency inventory.
 
 ## OCR data
 
@@ -37,11 +37,13 @@ These executables and assets are installed on the VPS and are not copied by `scr
 - Bubblewrap 0.11.1 (Ubuntu package declares LGPL-2+), used for filesystem, namespace, and network isolation.
 - systemd 259 (mixed LGPL/GPL package components), used for an AI cgroup scope.
 - Tesseract OCR 5.5.0 (Apache-2.0) and its system shared libraries.
-- Node.js 22+, glibc, the separately installed Codex CLI, and an authorized account credential.
+- Node.js 22+, Python 3, glibc, shared libgcc_s (GCC runtime exception; external dynamic prerequisite), the separately installed Codex CLI, and an authorized account credential.
 - Browser/OS fonts named by CSS. No webfont files are bundled. The PDF worker masks `/usr/share/fonts`; screenshots and rendered deck pages contain pixels rather than font binaries.
 
-## Native renderer replacement required
+## Native renderer replacement
 
-The installed `@napi-rs/canvas-linux-x64-gnu` package declares MIT at its wrapper level but bundles native and Rust components. Further inspection confirmed `cssparser` 0.38.0, licensed MPL-2.0, both in its upstream lockfile and in strings from the exact installed binary. The hackathon prohibits incorporated reciprocal licenses. **Replace this renderer before delivering the entry; a fuller notice bundle alone is insufficient.** Exact source links and the PDFium candidate are recorded in [evidence/native-notice-research.md](evidence/native-notice-research.md). Current runtime-package receipts remain historical technical evidence and do not close the license gate.
+The former `@napi-rs/canvas` 1.0.9 renderer incorporated MPL-2.0 cssparser; it and PDF.js are removed from package.json, the lockfile, and the delivered worker. Historical findings remain in [evidence/native-notice-research.md](evidence/native-notice-research.md).
 
-The runtime packager excludes PDF.js's bundled Liberation font files and their GPL-2-with-exceptions license; it does not delete or hide license files from an otherwise delivered dependency. PDF.js CMap, ICC, and WASM asset license files were inspected and those asset directories are excluded because this worker provides none of their URLs and its regression corpus passes without them. Unsupported PDFs needing those optional assets remain a parser-compatibility limit.
+The replacement is hash-pinned by `requirements-pdf.txt`; [evidence/pdfium-review/README.md](evidence/pdfium-review/README.md) records exact build evidence, the complete wheel notices, supplemental LLVM runtime/built-in font notices, and external shared-library boundaries. `scripts/package-runtime.mjs` checks the PDFium binary hash and retains all wheel licenses plus supplemental notices. It does not ship system executables/libraries or host font files.
+
+Portions of this software are copyright © The FreeType Project (www.freetype.org). All rights reserved. FreeType is used under the FreeType License (FTL), not its alternative GPL terms. The built-in PDFium font source attributes original code to Foxit Software Inc., copyright 2014.

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, readFile, rm, access } from 'node:fs/promises';
+import { mkdtemp, writeFile, readFile, rm, access, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -18,7 +18,8 @@ async function pdf(name, pageCount, dimensions = [612, 792], text = '') {
   const document = await PDFDocument.create();
   for (let index = 0; index < pageCount; index++) {
     const page = document.addPage(dimensions);
-    if (text) page.drawText(text, { x: 10, y: 700, size: text.length > 200000 ? 0.00001 : 12 });
+    // PDFium caps a single PDF text object at 32767 characters; use separate lines to exercise the document limit.
+    if (text) for (let offset = 0; offset < text.length; offset += 30000) page.drawText(text.slice(offset, offset + 30000), { x: 10, y: 700 - offset / 1000, size: text.length > 200000 ? 0.00001 : 12 });
   }
   const path = join(directory, name);
   await writeFile(path, await document.save()); return path;
@@ -66,16 +67,38 @@ test('mixed selectable text and scanned content are both retained without host f
   assert.match(result.pages[0].text, /Inés visita la biblioteca/);
   assert.ok(result.warnings.some(warning => warning.includes('Spanish OCR')));
 });
-test('runtime package excludes optional PDF assets and still performs real OCR', async () => {
+test('runtime package retains exact PDFium licenses and excludes removed renderers while performing real OCR', async () => {
   const output = join(directory, 'runtime-package');
   await execFile(process.execPath, ['scripts/package-runtime.mjs', output], { cwd: new URL('../..', import.meta.url) });
   await assert.rejects(access(join(output, 'node_modules/pdfjs-dist/standard_fonts')));
   const manifest = JSON.parse(await readFile(join(output, 'RUNTIME_MANIFEST.json')));
-  assert.ok(manifest.files.some(file => file.path.endsWith('skia.linux-x64-gnu.node')));
+  assert.ok(manifest.files.some(file => file.path.endsWith('pypdfium2_raw/libpdfium.so')));
+  assert.ok(manifest.files.some(file => file.path.endsWith('BUILD_LICENSES/freetype.txt')));
+  assert.ok(manifest.files.every(file => !/pdfjs-dist|napi-rs|__pycache__/.test(file.path)));
+  const build = JSON.parse(await readFile(join(output, 'runtime/pdfium/pypdfium2_raw/version.json')));
+  assert.equal(build.build, 7999); assert.deepEqual(build.flags, []);
   assert.ok(manifest.files.every(file => !file.path.includes('standard_fonts')));
   const packaged = await import(pathToFileURL(join(output, 'server/pdf.mjs')));
   const result = await packaged.extractPdf({ path: fixture('sample-scan.pdf') });
   assert.match(result.pages[0].text, /Inés visita la biblioteca/);
+  // Probe the identical packaged mount/namespace/rlimit boundary with synthetic code.
+  await writeFile(join(output, 'server/pdf-worker.py'), `import os, socket, resource, json
+assert not os.path.exists('/home/ubuntu')
+assert not os.path.exists('/run/user')
+assert not os.path.exists('/etc/resolv.conf')
+assert os.listdir('/usr/share/fonts') == []
+assert resource.getrlimit(resource.RLIMIT_AS) == (1073741824, 1073741824)
+assert resource.getrlimit(resource.RLIMIT_CPU) == (45, 45)
+assert resource.getrlimit(resource.RLIMIT_FSIZE) == (33554432, 33554432)
+try:
+    socket.create_connection(('1.1.1.1', 53), .1)
+except OSError:
+    pass
+else:
+    raise AssertionError('Network unexpectedly available')
+print(json.dumps(dict(type='result', result=dict(pages=[dict(page=1, text='boundary passed')], warnings=[]))))
+`);
+  assert.equal((await packaged.extractPdf({ path: fixture('sample-text.pdf') })).pages[0].text, 'boundary passed');
 });
 test('parent rejects malformed isolated-worker results', () => {
   assert.throws(() => validatePdfResult({ pages: [{ page: 2, text: 'wrong index' }], warnings: [] }), { code: 'PDF_RESOURCE' });
@@ -108,6 +131,43 @@ test('cancellation stops a real worker during the OCR stage', async () => {
   const already = new AbortController(); already.abort();
   await assert.rejects(extractPdf({ path: fixture('sample-text.pdf'), signal: already.signal }), { name: 'AbortError' });
 });
+test('PDFium keeps blank source pages and rejects image, nesting, object, and saturated text limits', async () => {
+  const doc = await PDFDocument.create();
+  doc.addPage().drawText('Esta página tiene texto español suficiente para estudiar.'); doc.addPage();
+  const mixed = join(directory, 'blank-source-page.pdf'); await writeFile(mixed, await doc.save());
+  const result = await extractPdf({ path: mixed });
+  assert.deepEqual(result.pages.map(p => p.page), [1, 2]); assert.equal(result.pages[1].text, '');
+  assert.ok(result.warnings.some(w => w.includes('Page 2 has no readable text')));
+  for (const kind of ['image', 'nesting', 'objects', 'saturation']) {
+    const doc = await PDFDocument.create(), page = doc.addPage();
+    if (kind === 'image') {
+      const image = doc.context.register(doc.context.flateStream(new Uint8Array([0]), { Type: 'XObject', Subtype: 'Image', Width: 16000001, Height: 1, BitsPerComponent: 8, ColorSpace: 'DeviceGray' }));
+      page.node.set(PDFName.of('Resources'), doc.context.obj({ XObject: { Big: image } }));
+      page.node.set(PDFName.of('Contents'), doc.context.register(doc.context.flateStream('q 10 0 0 10 0 0 cm /Big Do Q')));
+    } else if (kind === 'nesting') {
+      let form = doc.context.register(doc.context.flateStream('', { Type: 'XObject', Subtype: 'Form', BBox: [0, 0, 100, 100] }));
+      for (let i = 0; i < 17; i++) form = doc.context.register(doc.context.flateStream('/Nested Do', { Type: 'XObject', Subtype: 'Form', BBox: [0, 0, 100, 100], Resources: { XObject: { Nested: form } } }));
+      page.node.set(PDFName.of('Resources'), doc.context.obj({ XObject: { Nested: form } }));
+      page.node.set(PDFName.of('Contents'), doc.context.register(doc.context.flateStream('/Nested Do')));
+    } else if (kind === 'objects') {
+      page.node.set(PDFName.of('Contents'), doc.context.register(doc.context.flateStream('0 0 10 10 re f\n'.repeat(10001))));
+    } else page.drawText('a'.repeat(40000), { size: .00001 });
+    const path = join(directory, `${kind}-limit.pdf`); await writeFile(path, await doc.save());
+    await assert.rejects(extractPdf({ path }), { code: kind === 'saturation' ? 'PDF_TEXT' : 'PDF_RESOURCE' });
+  }
+});
+test('permissive fixture generator still produces selectable and scanned Spanish PDFs', async () => {
+  const { generateFixtures } = await import('../../scripts/import-content.mjs');
+  const output = join(directory, 'generated-fixtures'); await mkdir(output);
+  await writeFile(join(output, 'sample-spanish.txt'), await readFile(fixture('sample-spanish.txt')));
+  await generateFixtures(output);
+  for (const file of ['sample-text.pdf', 'sample-scan.pdf']) {
+    const result = await extractPdf({ path: join(output, file) });
+    assert.match(result.pages[0].text, /Inés visita la biblioteca/);
+    assert.equal(result.warnings.some(w => w.includes('Spanish OCR')), file.includes('scan'));
+  }
+});
+
 test('structural validation enforces canonical versions, exact spans and fresh plus target checks', () => {
   assert.equal(validateProposal(proposal(), input).lessons.length, 1);
   let p = proposal(); p.lessons[0].questions[0].sourceSpan.text = 'Invented source'; assert.throws(() => validateProposal(p, input), { code: 'AI_OUTPUT' });

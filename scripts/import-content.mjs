@@ -155,12 +155,9 @@ export async function importBook(source = defaultSource, output = path.join(root
   return book;
 }
 
-async function generateFixtures() {
-  const [{ PDFDocument, StandardFonts, rgb }, { createCanvas }] = await Promise.all([
-    import('pdf-lib'),
-    import('@napi-rs/canvas'),
-  ]);
-  const fixtureDir = path.join(root, 'content/fixtures');
+export async function generateFixtures(fixtureDir = path.join(root, 'content/fixtures')) {
+  const { PDFDocument, StandardFonts, rgb } = await import('pdf-lib');
+  const { execFileSync } = await import('node:child_process');
   const text = await readFile(path.join(fixtureDir, 'sample-spanish.txt'), 'utf8');
   const lines = text.trimEnd().split('\n');
   const textPdf = await PDFDocument.create();
@@ -168,20 +165,28 @@ async function generateFixtures() {
   const font = await textPdf.embedFont(StandardFonts.Helvetica);
   lines.forEach((line, index) => page.drawText(line, { x: 55, y: 780 - index * 24, size: 15, font, color: rgb(0.08, 0.08, 0.08) }));
 
-  const canvas = createCanvas(1240, 1754);
-  const context = canvas.getContext('2d');
-  context.fillStyle = '#f8f5ed';
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  context.fillStyle = '#202020';
-  context.font = '30px sans-serif';
-  lines.forEach((line, index) => context.fillText(line, 110, 180 + index * 52));
+  // Rasterize synthetic text with the same reviewed PDFium build; PNG uses Python stdlib only.
+  const textBytes = await textPdf.save();
+  const png = execFileSync('/usr/bin/python3', ['-I', '-B', '-c', `
+import sys, struct, zlib
+from contextlib import closing
+sys.path.insert(0, sys.argv[1])
+import pypdfium2 as pdfium
+import pypdfium2.raw as raw
+def chunk(kind, data):
+    return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data))
+with pdfium.PdfDocument(sys.stdin.buffer.read()) as doc, closing(doc[0]) as page, closing(page.render(scale=2, rev_byteorder=True, force_bitmap_format=raw.FPDFBitmap_BGR)) as bitmap:
+    view = memoryview(bitmap.buffer).cast('B')
+    rows = b''.join(b'\\0' + view[y*bitmap.stride:y*bitmap.stride+bitmap.width*3].tobytes() for y in range(bitmap.height))
+    sys.stdout.buffer.write(b'\\x89PNG\\r\\n\\x1a\\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', bitmap.width, bitmap.height, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(rows)) + chunk(b'IEND', b''))
+`, path.join(root, 'runtime/pdfium')], { input: textBytes, maxBuffer: 16000000 });
   const scanPdf = await PDFDocument.create();
   const scanPage = scanPdf.addPage([595, 842]);
-  const image = await scanPdf.embedPng(canvas.toBuffer('image/png'));
+  const image = await scanPdf.embedPng(png);
   scanPage.drawImage(image, { x: 0, y: 0, width: 595, height: 842 });
 
   await Promise.all([
-    writeFile(path.join(fixtureDir, 'sample-text.pdf'), await textPdf.save()),
+    writeFile(path.join(fixtureDir, 'sample-text.pdf'), textBytes),
     writeFile(path.join(fixtureDir, 'sample-scan.pdf'), await scanPdf.save()),
   ]);
 }
