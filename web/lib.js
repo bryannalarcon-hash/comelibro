@@ -9,6 +9,11 @@ export async function api(path, options = {}) {
     if (response.status === 401 && !path.startsWith('/auth/')) window.dispatchEvent(new Event('session-expired'));
     throw error;
   }
+  if (path === '/bootstrap') {
+    const previous = sessionStorage.getItem('comelibro:active-user'), next = data.user?.id || '';
+    if (previous && next && previous !== next) window.dispatchEvent(new Event('session-account-changed'));
+    if (next) sessionStorage.setItem('comelibro:active-user', next); else sessionStorage.removeItem('comelibro:active-user');
+  }
   return data;
 }
 export const post = (path, body = {}, headers = {}) => api(path, {method:'POST', body, headers});
