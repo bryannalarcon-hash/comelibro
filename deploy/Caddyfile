@@ -1,0 +1,17 @@
+comelibro.bryannalarcon.com {
+	bind 15.204.120.224
+
+	encode gzip
+
+	request_body {
+		max_size 6MB
+	}
+
+	header {
+		Referrer-Policy "same-origin"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+	}
+
+	reverse_proxy 127.0.0.1:3300
+}
