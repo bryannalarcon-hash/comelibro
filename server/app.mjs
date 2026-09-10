@@ -14,7 +14,7 @@ const json = value => JSON.stringify(value), parse = (value,fallback=null) => va
 const stamp = () => new Date().toISOString(), hash = value => createHash('sha256').update(value).digest('hex');
 const normalized = value => String(value??'').normalize('NFKC').trim().replace(/\s+/g,' ').toLocaleLowerCase('es');
 // ponytail: exact normalized fingerprints stop regenerated credit; add reviewed canonical item IDs if paraphrase equivalence must collapse too.
-const assessmentId = q => `generated-${hash(json({objectiveId:q.objectiveId,objectiveVersion:String(q.objectiveVersion||'1'),type:q.type,prompt:normalized(q.prompt),correct:normalized(q.choices?.[q.answerIndex]),distractors:(q.choices||[]).filter((_,i)=>i!==q.answerIndex).map(normalized).sort(),source:normalized(q.sourceSpan?.text)})).slice(0,32)}`;
+const assessmentId = q => `generated-${hash(json({objectiveId:q.objectiveId,objectiveVersion:String(q.objectiveVersion||'1'),type:q.type,prompt:normalized(q.prompt),correct:normalized(q.choices?.[q.answerIndex]),source:q.type==='fresh-transfer'?'':normalized(q.sourceSpan?.text)})).slice(0,32)}`;
 const pubUser = u => u ? ({id:u.id,email:u.email,name:u.name,verified:!!u.verified,role:u.role}) : null;
 const publicQuestion = q => q ? ({id:q.id,version:String(q.version || '1'),objectiveId:q.objectiveId,type:['multiple-choice','fresh-transfer','target-comprehension','target-form','target-vocabulary'].includes(q.type)?q.type:undefined,prompt:q.prompt,choices:q.choices}) : null;
 const defaults = {theme:'system',fontSize:20,lineHeight:1.8};
@@ -74,6 +74,17 @@ export function createApp(options={}) {
   app.post('/api/auth/reset-password',async(req,res)=>{throttle(`reset:${req.ip}`,10,3600);const token=str(req.body.token,'Reset token',150);const password=await passwordHash(validPassword(req.body.password));const row=one("SELECT * FROM tokens WHERE hash=? AND kind='reset' AND expiresAt>?",hash(token),stamp());if(!row)fail(400,'TOKEN_INVALID','This reset link is invalid or expired. Request a new one.');transaction(()=>{run('UPDATE users SET password=? WHERE id=?',password,row.userId);run('DELETE FROM sessions WHERE userId=?',row.userId);run('DELETE FROM tokens WHERE userId=?',row.userId);});res.clearCookie('comelibro_session',{path:'/'});res.json({ok:true});});
   app.patch('/api/settings',auth,(req,res)=>{const b=req.body;const settings={...defaults,...parse(req.user.settings,{})};if(b.theme!==undefined){if(!['light','dark','system'].includes(b.theme))fail(400,'INVALID_INPUT','Choose light, dark, or system theme.');settings.theme=b.theme;}for(const [key,min,max] of [['fontSize',16,32],['lineHeight',1.3,2.4]])if(b[key]!==undefined){if(typeof b[key]!=='number'||b[key]<min||b[key]>max)fail(400,'INVALID_INPUT',`${key} is outside the supported range.`);settings[key]=b[key];}run('UPDATE users SET settings=? WHERE id=?',json(settings),req.user.id);res.json({settings});});
   function isReviewed(question) {return question.review?.status==='approved' && !!question.review.reviewer && String(question.review.version)===String(question.version||'1');}
+  function assessmentAliases(user) {
+    // Keep old lesson IDs, responses and BKT history intact; their retained snapshots identify prior exposure.
+    // ponytail: scans this account's lesson history; persist indexed aliases if histories make this expensive.
+    const aliases=new Map();
+    for(const row of all('SELECT data FROM lessons WHERE userId=?',user.id))for(const q of parse(row.data).questions||[]){
+      if(!q.id.startsWith('generated-'))continue;
+      const id=assessmentId(q);if(!aliases.has(id))aliases.set(id,new Set([id]));aliases.get(id).add(q.id);
+    }
+    return aliases;
+  }
+  const questionIds=(q,aliases)=>q.id.startsWith('generated-')?aliases.get(assessmentId(q))||new Set([q.id]):new Set([q.id]);
   function score(user,q,body,context) {
     const id=attemptId(body.attemptId),version=String(q.version||'1');
     if(!Number.isInteger(body.choiceIndex)||body.choiceIndex<0||body.choiceIndex>=q.choices.length)fail(400,'INVALID_ANSWER','Choose one of the answers.');
@@ -81,8 +92,9 @@ export function createApp(options={}) {
     if(body.elapsedMs!==undefined&&(!Number.isInteger(body.elapsedMs)||body.elapsedMs<0||body.elapsedMs>86400000))fail(400,'INVALID_INPUT','Invalid answer timing.');
     const duplicate=one('SELECT * FROM attempts WHERE userId=? AND id=?',user.id,id);
     if(duplicate){if(duplicate.questionId!==q.id||duplicate.questionVersion!==version||duplicate.choiceIndex!==body.choiceIndex||duplicate.context!==context)fail(409,'ATTEMPT_CONFLICT','This attempt identifier was already used for a different answer.');return {...parse(duplicate.response),duplicate:true};}
-    const first=!one('SELECT id FROM attempts WHERE userId=? AND questionId=?',user.id,q.id);
-    const previousAssistance=q.id.startsWith('generated-')?one('SELECT kind FROM assistance WHERE userId=? AND questionId=?',user.id,q.id):one('SELECT kind FROM assistance WHERE userId=? AND questionId=? AND questionVersion=?',user.id,q.id,version);
+    const generated=q.id.startsWith('generated-'),ids=json([...questionIds(q,generated?assessmentAliases(user):new Map())]);
+    const first=!one('SELECT id FROM attempts WHERE userId=? AND questionId IN (SELECT value FROM json_each(?))',user.id,ids);
+    const previousAssistance=generated?one('SELECT kind FROM assistance WHERE userId=? AND questionId IN (SELECT value FROM json_each(?))',user.id,ids):one('SELECT kind FROM assistance WHERE userId=? AND questionId=? AND questionVersion=?',user.id,q.id,version);
     const assisted=!!body.assisted||!!previousAssistance;
     const objective=catalog().objectives.find(o=>o.id===q.objectiveId&&String(o.version||'1')===String(q.objectiveVersion||'1'));
     const scored=first&&!assisted&&isReviewed(q)&&!!objective;
@@ -140,7 +152,8 @@ export function createApp(options={}) {
   function progress(user,lesson) {
     const attempts=all('SELECT * FROM attempts WHERE userId=? AND context=? ORDER BY createdAt',user.id,`lesson:${lesson.id}`);
     const responses=lesson.questions.flatMap(q=>{const row=attempts.find(r=>r.questionId===q.id&&r.questionVersion===String(q.version||'1'));return row?[{questionId:q.id,choiceIndex:row.choiceIndex,correct:!!row.correct,scored:!!row.scored,assisted:!!row.assisted,explanation:parse(row.response).explanation}]:[];});
-    const assistance=all('SELECT * FROM assistance WHERE userId=?',user.id).flatMap(row=>{const q=lesson.questions.find(q=>q.id===row.questionId&&String(q.version||'1')===row.questionVersion);return q?[{questionId:q.id,kind:row.kind,...(row.kind==='reveal'?{answerIndex:q.answerIndex,explanation:q.explanation}:{hint:q.hint||'Compare each choice with the source passage.'})}]:[];});
+    const aliases=lesson.questions.some(q=>q.id.startsWith('generated-'))?assessmentAliases(user):new Map(),help=all('SELECT * FROM assistance WHERE userId=?',user.id);
+    const assistance=lesson.questions.flatMap(q=>{const ids=questionIds(q,aliases),rows=help.filter(row=>ids.has(row.questionId)&&(q.id.startsWith('generated-')||String(q.version||'1')===row.questionVersion)),row=rows.find(row=>row.kind==='reveal')||rows[0];return row?[{questionId:q.id,kind:row.kind,...(row.kind==='reveal'?{answerIndex:q.answerIndex,explanation:q.explanation}:{hint:q.hint||'Compare each choice with the source passage.'})}]:[];});
     return {answered:responses.length,correct:responses.filter(r=>r.correct).length,total:lesson.questions.length,responses,assistance};
   }
   function lessonSummary(lesson,user){let current=lesson;if(!current.questions)current=parse(one('SELECT data FROM lessons WHERE id=? AND userId=?',lesson.id,user.id)?.data)||catalog().lessons.find(l=>l.id===lesson.id)||lesson;const answered=current.questions?.length?progress(user,current).answered:0;return {id:lesson.id,title:lesson.title,passageId:lesson.passageId,objectiveIds:lesson.objectiveIds,estimatedMinutes:lesson.estimatedMinutes||6,status:answered===current.questions?.length?'complete':answered?'in_progress':'available'};}
