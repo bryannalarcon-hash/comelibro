@@ -205,10 +205,13 @@ test('choice normalization preserves each exact correct value and all assessment
 });
 
 test('independent receipts overwrite self-review; missing or failed checks cannot approve', () => {
-  const p = proposal(), review = receipts(p); review.items[0].answerKey = false;
-  applyReview(p, review);
-  assert.equal(p.lessons[0].questions[0].review.status, 'uncertain');
-  assert.match(p.lessons[0].questions[1].review.reviewer, /independent-semantic-v4/);
+  const p = proposal();
+  for (const check of ['sourceGrounding', 'spanishAccuracy', 'answerKey', 'objectiveAlignment']) {
+    const review = receipts(p); review.items[0][check] = false;
+    applyReview(p, review);
+    assert.equal(p.lessons[0].questions[0].review.status, 'uncertain', `${check} failure must block approval`);
+  }
+  assert.match(p.lessons[0].questions[1].review.reviewer, /independent-semantic-v6/);
   assert.equal(p.lessons[0].questions[1].review.status, 'approved');
   assert.throws(() => applyReview(proposal(), { items: [] }), { code: 'AI_REVIEW' });
   const wrongVersion = receipts(proposal()); wrongVersion.items[0].version = '2';
@@ -236,8 +239,9 @@ test('LIVE curriculum uses source/objective/evidence tools and separate independ
   validateProposal(output, input);
   const starts = events.filter(e => e.phase === 'start');
   assert.equal(starts.length, 2); assert.notEqual(starts[0].invocationId, starts[1].invocationId);
+  assert.deepEqual(starts.map(e => e.promptVersion), ['comelibro-curriculum-v7', 'comelibro-review-v6']);
   for (const name of ['task_source', 'canonical_objectives', 'learner_evidence', 'proposed_items']) assert.ok(events.some(e => e.phase === 'tool' && e.tool === name));
-  assert.ok(output.lessons.every(l => l.questions.every(q => q.review.reviewer.includes('independent-semantic-v4') && q.review.version === q.version)));
+  assert.ok(output.lessons.every(l => l.questions.every(q => q.review.reviewer.includes('independent-semantic-v6') && q.review.version === q.version)));
   await writeFile(new URL('evidence/runtime/live-curriculum.json', root), JSON.stringify({ actual: true, date: new Date().toISOString(), input, output, events }, null, 2));
 });
 test('LIVE cancellation terminates the actual isolated account process after startup', { skip: process.env.RUN_LIVE_AI !== '1', timeout: 15000 }, async () => {
