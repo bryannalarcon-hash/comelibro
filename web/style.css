@@ -14,3 +14,5 @@
 .upload-complete-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px}
 .job-heading h2{font-size:1rem}
 .job-heading h2:focus,.flashcard h2:focus,.card-back h3:focus,.completion h2:focus{outline:3px solid var(--ochre);outline-offset:4px}
+body{min-width:0}
+@media(max-width:360px){.chapter-nav{grid-template-columns:1fr}}
