@@ -55,7 +55,7 @@ function cleanInput(kind, input) {
 // Logs contain only application-selected data, never raw protocol events or reasoning.
 export function redactEvent(value) {
   return JSON.parse(JSON.stringify(value, (key, item) => {
-    if (/password|authorization|api.?key|access.?token|refresh.?token|id.?token|secret|cookie/i.test(key)) return '[REDACTED]';
+    if (/^token$|password|authorization|api.?key|access.?token|refresh.?token|id.?token|secret|cookie/i.test(key)) return '[REDACTED]';
     return typeof item === 'string' ? item.replace(/\bBearer\s+\S+|\bsk-[A-Za-z0-9_-]{12,}|\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, '[REDACTED]') : item;
   }));
 }
