@@ -82,7 +82,7 @@ await writeFile(join(output, 'PRODUCTION_DEPENDENCIES.json'), `${JSON.stringify(
 await writeFile(join(output, 'RELEASE_EXCLUSIONS.json'), `${JSON.stringify({
   excluded: [
     'research archives and raw source PDFs', 'user notes and private QA/runtime data',
-    'tests, screenshots, reports, and development dependencies', 'mailbox credentials, tokens, owner credentials, and Codex account state',
+    'application tests, screenshots, reports, and development dependencies', 'mailbox credentials, tokens, owner credentials, and Codex account state',
     'Python bytecode caches and host libraries/executables'
   ],
   hostPrerequisites: ['Node.js 22+', 'Python 3.9+', 'Bubblewrap 0.11.1+', 'Tesseract OCR 5+', 'systemd', 'glibc and shared libgcc_s'],
