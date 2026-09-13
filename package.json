@@ -10,8 +10,7 @@
     "start": "node server/index.mjs",
     "dev": "vite web --host 127.0.0.1",
     "build": "vite build web",
-    "test": "node --test server/tests/*.test.mjs",
-    "test:browser": "playwright test"
+    "test": "node --test server/tests/*.test.mjs"
   },
   "dependencies": {
     "express": "^5.2.1",
