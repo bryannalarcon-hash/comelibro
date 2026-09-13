@@ -1,19 +1,23 @@
+export function activeUserId() { try { return sessionStorage.getItem('comelibro:active-user') || ''; } catch { return ''; } }
+const identityRoute = path => ['/auth/register','/auth/login','/auth/verify','/auth/forgot-password','/auth/reset-password'].includes(path);
+export function accountChanged() { try { sessionStorage.removeItem('comelibro:active-user'); } catch {} window.dispatchEvent(new Event('session-account-changed')); }
+function clearActiveUser() { try { sessionStorage.removeItem('comelibro:active-user'); } catch {} }
+function applyUser(user) { const previous = activeUserId(), next = user?.id || ''; try { if(next) sessionStorage.setItem('comelibro:active-user',next); else sessionStorage.removeItem('comelibro:active-user'); } catch {} if(previous && previous !== next) window.dispatchEvent(new Event('session-account-changed')); }
 export async function api(path, options = {}) {
   let response;
-  try { response = await fetch(`/api${path}`, { credentials: 'same-origin', ...options, headers: { ...(options.body && !(options.body instanceof Blob) ? {'Content-Type':'application/json'} : {}), ...options.headers }, body: options.body && !(options.body instanceof Blob) ? JSON.stringify(options.body) : options.body }); }
+  const expected = activeUserId();
+  try { response = await fetch(`/api${path}`, { credentials: 'same-origin', ...options, headers: { ...(options.body && !(options.body instanceof Blob) ? {'Content-Type':'application/json'} : {}), ...options.headers, ...(expected && !['GET','HEAD','OPTIONS'].includes(options.method||'GET') && !identityRoute(path) ? {'X-Expected-Account-Id':expected} : {}) }, body: options.body && !(options.body instanceof Blob) ? JSON.stringify(options.body) : options.body }); }
   catch { throw new Error('Could not reach Comelibro. Check your connection, then try again. Your entries are still here.'); }
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const error = new Error(data.error || `Request failed (${response.status}). Please try again.`);
     error.status = response.status; error.code = data.code;
-    if (response.status === 401 && !path.startsWith('/auth/')) window.dispatchEvent(new Event('session-expired'));
+    if (error.code === 'ACCOUNT_CONTEXT_CHANGED') accountChanged();
+    else if (response.status === 401 && !path.startsWith('/auth/')) window.dispatchEvent(new Event('session-expired'));
     throw error;
   }
-  if (path === '/bootstrap') {
-    const previous = sessionStorage.getItem('comelibro:active-user'), next = data.user?.id || '';
-    if (previous && next && previous !== next) window.dispatchEvent(new Event('session-account-changed'));
-    if (next) sessionStorage.setItem('comelibro:active-user', next); else sessionStorage.removeItem('comelibro:active-user');
-  }
+  if (path === '/bootstrap' || data.user && path.startsWith('/auth/')) applyUser(data.user);
+  if (path === '/auth/logout' || path === '/auth/reset-password' || path === '/account') clearActiveUser();
   return data;
 }
 export const post = (path, body = {}, headers = {}) => api(path, {method:'POST', body, headers});
