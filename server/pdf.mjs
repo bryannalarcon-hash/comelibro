@@ -42,7 +42,7 @@ export async function extractPdf({ path, signal, onProgress = () => {} }) {
         '--unshare-all', '--die-with-parent', '--new-session', '--clearenv',
         '--setenv', 'HOME', '/tmp', '--setenv', 'PATH', '/usr/bin', '--setenv', 'OMP_THREAD_LIMIT', '1',
         '--chdir', '/work', '/usr/bin/python3', '-I', '-B', '/worker.py'];
-      const child = spawn('/usr/bin/prlimit', args, { detached: true, stdio: ['ignore', 'pipe', 'pipe'], env: { PATH: '/usr/bin' } });
+      const child = spawn('/usr/bin/prlimit', args, { detached: true, stdio: ['ignore', 'pipe', 'ignore'], env: { PATH: '/usr/bin' } }); // Never relay subprocess paths or parser diagnostics to the browser.
       let settled = false, pending = '', count = 0, result;
       const finish = (err, value) => {
         if (settled) return;
@@ -55,7 +55,6 @@ export async function extractPdf({ path, signal, onProgress = () => {} }) {
       signal?.addEventListener('abort', abort, { once: true });
       if (signal?.aborted) abort();
       child.on('error', () => finish(error('PDF_UNAVAILABLE', 'PDF processing is unavailable. Please try again later.')));
-      child.stderr.on('data', () => {}); // Never relay subprocess paths or parser diagnostics to the browser.
       child.stdout.setEncoding('utf8');
       child.stdout.on('data', chunk => {
         count += Buffer.byteLength(chunk);

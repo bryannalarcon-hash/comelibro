@@ -81,7 +81,7 @@ async function invoke({ kind, tools, schema, signal, emit }) {
   const report = event => emit({ invocationId, task: kind, ...event });
   report({ phase: 'start', state: 'starting', model, effort, promptVersion: promptVersions[kind], prompt: prompts[kind], limits: AI_LIMITS, allowedTools: Object.keys(tools), usage: null });
   return await new Promise((resolve, reject) => {
-    const child = spawn('/usr/bin/systemd-run', ['--user', '--scope', '--quiet', '--unit', `comelibro-ai-${invocationId}`, '--property=MemoryMax=768M', '--property=TasksMax=64', '--property=RuntimeMaxSec=115s', '/usr/bin/prlimit', ...sandboxArgs()], { detached: true, stdio: ['pipe', 'pipe', 'pipe'], env: { PATH: '/usr/bin', XDG_RUNTIME_DIR: '/run/user/1000' } });
+    const child = spawn('/usr/bin/systemd-run', ['--user', '--scope', '--quiet', '--unit', `comelibro-ai-${invocationId}`, '--property=MemoryMax=768M', '--property=TasksMax=64', '--property=RuntimeMaxSec=115s', '/usr/bin/prlimit', ...sandboxArgs()], { detached: true, stdio: ['pipe', 'pipe', 'ignore'], env: { PATH: '/usr/bin', XDG_RUNTIME_DIR: '/run/user/1000' } });
     let settled = false, pending = '', bytes = 0, calls = 0, nextId = 0, answer, usage = null;
     const requests = new Map(), called = new Set();
     const finish = (err, result) => {
@@ -103,7 +103,6 @@ async function invoke({ kind, tools, schema, signal, emit }) {
     child.stdin.on('error', () => failure('AI_TRANSPORT', 'The AI connection closed. Please retry later.'));
     child.on('error', () => failure('AI_UNAVAILABLE', 'The isolated AI worker could not start.'));
     child.on('close', () => { if (!settled) failure('AI_RUNTIME', 'The AI worker stopped before completing. Please retry later.'); });
-    child.stderr.on('data', () => {});
     const receive = event => {
       if (settled) return;
       if (event.id !== undefined && !event.method) {
