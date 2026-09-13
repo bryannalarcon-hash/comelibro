@@ -32,6 +32,9 @@ export function attempt(key, body) {
   try { sessionStorage.setItem(storageKey,JSON.stringify(value)); } catch {}
   return value;
 }
+export function pendingAttempt(key) {
+  try { return JSON.parse(sessionStorage.getItem(`comelibro:attempt:${key}`)); } catch { return null; }
+}
 export function clearAttempt(key) { try { sessionStorage.removeItem(`comelibro:attempt:${key}`); } catch {} }
 export function chapterSentences(book, chapterId) { return book?.chapters?.find(c=>c.id===chapterId)?.sentences || []; }
 export function textOf(value) { return typeof value === 'string' ? value : value == null ? '' : JSON.stringify(value,null,2); }

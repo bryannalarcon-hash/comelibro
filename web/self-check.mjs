@@ -1,12 +1,14 @@
 // Run: node web/self-check.mjs. Retry identity must survive lost responses.
 import assert from 'node:assert/strict';
-import {attempt,clearAttempt,chapterSentences,textOf,api} from './lib.js';
+import {attempt,pendingAttempt,clearAttempt,chapterSentences,textOf,api} from './lib.js';
 const memory=new Map();
 globalThis.sessionStorage={getItem:key=>memory.get(key),setItem:(key,value)=>memory.set(key,value),removeItem:key=>memory.delete(key)};
 const first=attempt('account:question:v1',{choiceIndex:1,elapsedMs:14});
+assert.deepEqual(pendingAttempt('account:question:v1'),first);
 assert.deepEqual(attempt('account:question:v1',{choiceIndex:2,elapsedMs:99}),first);
 assert.notEqual(attempt('other-account:question:v1',{}).attemptId,first.attemptId);
 clearAttempt('account:question:v1');
+assert.equal(pendingAttempt('account:question:v1'),null);
 assert.notEqual(attempt('account:question:v1',{}).attemptId,first.attemptId);
 assert.deepEqual(chapterSentences({chapters:[{id:'1',sentences:[{text:'Hola.'}]}]},'missing'),[]);
 assert.equal(textOf('<script>alert(1)</script>'),'<script>alert(1)</script>');
