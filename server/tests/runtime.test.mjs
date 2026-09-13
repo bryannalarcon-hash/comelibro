@@ -239,7 +239,7 @@ test('LIVE curriculum uses source/objective/evidence tools and separate independ
   validateProposal(output, input);
   const starts = events.filter(e => e.phase === 'start');
   assert.equal(starts.length, 2); assert.notEqual(starts[0].invocationId, starts[1].invocationId);
-  assert.deepEqual(starts.map(e => e.promptVersion), ['comelibro-curriculum-v7', 'comelibro-review-v6']);
+  assert.deepEqual(starts.map(e => e.promptVersion), ['comelibro-curriculum-v8', 'comelibro-review-v6']);
   for (const name of ['task_source', 'canonical_objectives', 'learner_evidence', 'proposed_items']) assert.ok(events.some(e => e.phase === 'tool' && e.tool === name));
   assert.ok(output.lessons.every(l => l.questions.every(q => q.review.reviewer.includes('independent-semantic-v6') && q.review.version === q.version)));
   await writeFile(new URL('evidence/runtime/live-curriculum.json', root), JSON.stringify({ actual: true, date: new Date().toISOString(), input, output, events }, null, 2));
