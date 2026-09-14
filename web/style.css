@@ -21,3 +21,5 @@ body{min-width:0}
 @media(max-width:520px){.topbar{height:auto;min-height:72px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px;row-gap:0}.topbar>.brand{min-height:44px}}
 
 .lesson-source blockquote p{white-space:pre-wrap}
+
+.reading-help-modal .job-complete-compact{padding:8px 0;border:0;background:transparent;margin-bottom:0}.job-complete-compact .job-heading h2{font-size:1rem}.save-word-jump{display:block;width:100%;margin-top:12px;white-space:normal}

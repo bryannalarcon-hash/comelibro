@@ -235,7 +235,7 @@ export async function runTask({ kind, input, signal, onProgress = () => {}, onEv
   signal?.throwIfAborted();
   const source = kind === 'help' ? data : { book: data.book, passage: data.passage, currentCurriculum: data.currentCurriculum };
   emit({ phase: 'input', task: kind, input: data });
-  onProgress(0.05, kind === 'help' ? 'Reading your sentence…' : 'Planning a lesson around this passage…');
+  onProgress(0.05, kind === 'help' ? 'Preparing your reading help…' : 'Planning a lesson around this passage…');
   const tools = kind === 'help' ? { task_source: source } : { task_source: source, canonical_objectives: data.objectives, learner_evidence: data.evidence };
   const result = await invoke({ kind, tools, schema: kind === 'help' ? helpSchema : curriculumSchema, signal, emit });
   signal?.throwIfAborted();
