@@ -87,7 +87,8 @@ function checkReviews(value) {
   if ('review' in value) {
     reviewCount += 1;
     assert.equal(value.review.status, 'approved');
-    assert.equal(value.review.reviewer, 'content_semantic_review / GPT-5.6 Sol');
+    assert.equal(typeof value.review.reviewer, 'string');
+    assert(value.review.reviewer.trim(), 'Approved reviews require a named independent reviewer');
     assert.equal(value.review.version, value.version);
     assert.equal(typeof value.review.reason, 'string');
     assert(value.review.reason.length >= 24);

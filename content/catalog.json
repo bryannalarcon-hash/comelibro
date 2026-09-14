@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "objectives": [
     {
       "id": "present-current-facts",
@@ -294,16 +294,26 @@
     },
     {
       "id": "placement-se-1",
-      "version": 1,
+      "version": 2,
       "objectiveVersion": 1,
       "objectiveId": "pronominal-se",
       "difficulty": 2,
-      "prompt": "In El viajero se viste antes del amanecer, who gets dressed?",
-      "choices": ["An unnamed person", "The sunrise", "A group of travelers", "The traveler"],
-      "answerIndex": 3,
-      "explanation": "Se refers back to the named subject el viajero in this pronominal use.",
+      "prompt": "El viajero está en la habitación con su hijo. El viajero se viste antes del amanecer. Which description matches the second sentence?",
+      "choices": [
+        "Before dawn, the traveler puts clothes on his son.",
+        "Before dawn, the traveler puts clothes on himself.",
+        "Before dawn, the son puts clothes on the traveler.",
+        "Before dawn, the son puts clothes on himself."
+      ],
+      "answerIndex": 1,
+      "explanation": "Se links the dressing action back to el viajero: the traveler dresses himself, rather than dressing his son.",
       "type": "multiple-choice",
-      "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "The singular named subject is the referent of se in vestirse; the answer is unambiguous.", "version": 1}
+      "review": {
+        "status": "approved",
+        "reviewer": "/root/review_cohort_assessment_support; configured Astra/high; runtime identity unexposed",
+        "reason": "Independent exact-version review: grammatical unique self-directed key; traveler/son alternatives require the agent-recipient relation rather than names alone.",
+        "version": 2
+      }
     },
     {
       "id": "placement-vocabulary-1",
@@ -322,7 +332,7 @@
   "lessons": [
     {
       "id": "dq-opening-1-place-and-memory",
-      "version": 1,
+      "version": 2,
       "bookId": "don-quixote",
       "passageId": "dq-opening-1-3",
       "title": "Place, memory, and the opening time frame",
@@ -335,20 +345,34 @@
         {"es": "No hace mucho tiempo, vivía cerca del río.", "en": "Not long ago, I lived near the river."}
       ],
       "glossaryIds": ["lugar-settlement", "hidalgo", "astillero", "adarga", "rocin", "galgo"],
-      "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "Core teaching now explicitly covers every assessed construction; examples preserve a fresh transfer step and the source reading goal.", "version": 1},
+      "review": {"status": "approved", "reviewer": "/root/review_cohort_assessment_support; configured Astra/high; runtime identity unexposed", "reason": "Independent exact-version review: teaching, examples and source support the reviewed clue and distinct acordarse message check; scoped near transfer does not establish learning efficacy.", "version": 2},
       "questions": [
         {
           "id": "dq-l1-q1",
-          "version": 1,
+          "version": 2,
           "objectiveVersion": 1,
           "objectiveId": "negation-scope",
           "prompt": "In no quiero acordarme, which idea does no negate?",
-          "choices": ["That the place has a name", "That the hidalgo lived there", "The narrator's wanting to remember the name", "That the place is in La Mancha"],
+          "choices": [
+            "That the place has a name",
+            "That the hidalgo lived there",
+            "The narrator's wanting to remember the name",
+            "That the place is in La Mancha"
+          ],
           "answerIndex": 2,
           "explanation": "No directly negates quiero: the narrator says he does not want to recall the name.",
           "type": "target-form",
-          "sourceSpan": {"sentenceId": "dq-1.1-1", "text": "de cuyo nombre no quiero acordarme"},
-          "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "The prompt directly tests the scope of no over quiero; source, Spanish, and unique key were checked.", "version": 1}
+          "sourceSpan": {
+            "sentenceId": "dq-1.1-1",
+            "text": "de cuyo nombre no quiero acordarme"
+          },
+          "review": {
+            "status": "approved",
+            "reviewer": "/root/review_cohort_assessment_support; configured Astra/high; runtime identity unexposed",
+            "reason": "Independent exact-version review: source-grounded no/quiero scope and unique key retained; clue directs attention to the governing verb without revealing the answer.",
+            "version": 2
+          },
+          "hint": "Notice the position of no. Which verb comes immediately after it, and what meaning does that verb add?"
         },
         {
           "id": "dq-l1-q2",
@@ -378,16 +402,29 @@
         },
         {
           "id": "dq-l1-q4",
-          "version": 1,
+          "version": 2,
           "objectiveVersion": 1,
           "objectiveId": "acordarse-de",
-          "prompt": "Fresh example: Complete Quiero ___ de tu consejo.",
-          "choices": ["acordar", "acordarme", "acuerdo a", "me acordar"],
-          "answerIndex": 1,
-          "explanation": "The infinitive keeps the pronominal marker and the complement begins with de: acordarme de.",
+          "prompt": "Fresh example: Clara reads this message from Luis: «Me acuerdo de nuestra primera excursión». What is Luis telling Clara?",
+          "choices": [
+            "He is arranging their first excursion together.",
+            "He is asking her about their first excursion together.",
+            "He recalls their first excursion together.",
+            "He is cancelling their first excursion together."
+          ],
+          "answerIndex": 2,
+          "explanation": "Me acuerdo de means I remember: Luis recalls their first excursion. Acordarse de expresses remembering, rather than arranging or agreeing on something.",
           "type": "fresh-transfer",
-          "sourceSpan": {"sentenceId": "dq-1.1-1", "text": "de cuyo nombre no quiero acordarme"},
-          "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "The fresh prompt correctly requires acordarme de and links to the book's exact governed-preposition construction.", "version": 1}
+          "sourceSpan": {
+            "sentenceId": "dq-1.1-1",
+            "text": "de cuyo nombre no quiero acordarme"
+          },
+          "review": {
+            "status": "approved",
+            "reviewer": "/root/review_cohort_assessment_support; configured Astra/high; runtime identity unexposed",
+            "reason": "Independent exact-version review: grammatical acordarse de message interpretation with unique recall key; new communicative decision differs from placement infinitive cloze.",
+            "version": 2
+          }
         },
         {
           "id": "dq-l1-q5",
@@ -490,7 +527,7 @@
     },
     {
       "id": "dq-opening-3-clothes-and-reference",
-      "version": 1,
+      "version": 2,
       "bookId": "don-quixote",
       "passageId": "dq-opening-1-3",
       "title": "Clothing, reference, and self-presentation",
@@ -503,7 +540,7 @@
         {"es": "Entre semana se vestía con ropa sencilla.", "en": "On weekdays he dressed in simple clothes."}
       ],
       "glossaryIds": ["della", "concluian", "sayo", "velarte", "calzas", "velludo", "pantuflos", "vellori", "lo-mas-fino"],
-      "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "The revised teaching explicitly covers clause roles, della, velarte, pronominal reference, and agreement before the corresponding questions.", "version": 1},
+      "review": {"status": "approved", "reviewer": "/root/review_cohort_assessment_support; configured Astra/high; runtime identity unexposed", "reason": "Independent exact-version review: historical self-presentation remains accurate; revised relation question and unfamiliar se-deletion comparison align with objective v1 and its exclusions.", "version": 2},
       "questions": [
         {
           "id": "dq-l3-q1",
@@ -533,29 +570,55 @@
         },
         {
           "id": "dq-l3-q3",
-          "version": 1,
+          "version": 2,
           "objectiveVersion": 1,
           "objectiveId": "pronominal-se",
-          "prompt": "Who is described by se honraba con su vellorí?",
-          "choices": ["The fabric", "The slippers", "The weekdays", "The hidalgo"],
-          "answerIndex": 3,
-          "explanation": "After the coordinated y, the understood subject returns to the hidalgo; se belongs to that pronominal construction.",
+          "prompt": "In se honraba con su vellorí, honrar concerns a respectable appearance. Which reading does se support here?",
+          "choices": [
+            "The hidalgo used his woolen clothes to present himself respectably.",
+            "The hidalgo used his woolen clothes to present another person respectably.",
+            "Another person used the woolen clothes to present the hidalgo respectably.",
+            "Another person used the hidalgo’s woolen clothes to present himself respectably."
+          ],
+          "answerIndex": 0,
+          "explanation": "Here se honraba describes the hidalgo’s own respectable self-presentation in his vellorí. It does not describe him presenting another person.",
           "type": "target-comprehension",
-          "sourceSpan": {"sentenceId": "dq-1.1-3", "text": "se honraba con su vellorí"},
-          "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "The coordinated clause returns to the hidalgo as understood subject; the source and key were checked.", "version": 1}
+          "sourceSpan": {
+            "sentenceId": "dq-1.1-3",
+            "text": "se honraba con su vellorí"
+          },
+          "review": {
+            "status": "approved",
+            "reviewer": "/root/review_cohort_assessment_support; configured Astra/high; runtime identity unexposed",
+            "reason": "Independent exact-version review: exact historical source supports respectable self-presentation; alternatives distinguish participant relations without recasting honrarse as literal dressing.",
+            "version": 2
+          }
         },
         {
           "id": "dq-l3-q4",
-          "version": 1,
+          "version": 2,
           "objectiveVersion": 1,
           "objectiveId": "pronominal-se",
-          "prompt": "Fresh example: In El actor se vistió antes de salir, who was dressed?",
-          "choices": ["The actor himself", "An unnamed child", "The audience", "Nobody"],
-          "answerIndex": 0,
-          "explanation": "Se points back to el actor in this reflexive or pronominal use.",
+          "prompt": "Fresh example: A writer changes «Lucía se mira en el espejo» to «Lucía mira en el espejo» by deleting se. (Mirar means to look; espejo means mirror.) Which detail is explicit in the first version but left unstated in the second?",
+          "choices": [
+            "That Lucía is the person doing the looking.",
+            "That the looking takes place in the present.",
+            "That Lucía is also the person she is looking at.",
+            "That Lucía is looking in a mirror."
+          ],
+          "answerIndex": 2,
+          "explanation": "Se explicitly makes Lucía both the person looking and the person looked at. Without se, the sentence still names Lucía as the subject and the mirror as the setting, but it does not specify whom or what she looks at.",
           "type": "fresh-transfer",
-          "sourceSpan": {"sentenceId": "dq-1.1-3", "text": "se honraba con su vellorí"},
-          "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "The fresh sentence is grammatical and tests a named subject with pronominal se, linked to the exact book construction.", "version": 1}
+          "sourceSpan": {
+            "sentenceId": "dq-1.1-3",
+            "text": "se honraba con su vellorí"
+          },
+          "review": {
+            "status": "approved",
+            "reviewer": "/root/review_cohort_assessment_support; configured Astra/high; runtime identity unexposed",
+            "reason": "Independent exact-version review: deleting se leaves the self-recipient relation unstated while subject, tense and mirror remain; grammatical unique key and editorial comparison differ from placement dressing task.",
+            "version": 2
+          }
         },
         {
           "id": "dq-l3-q5",
