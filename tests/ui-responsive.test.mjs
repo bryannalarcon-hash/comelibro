@@ -20,7 +20,7 @@ async function freePort(){
  return port;
 }
 
-test('adaptive signed-in navigation keeps every destination reachable',{timeout:30000},async()=>{
+test('adaptive signed-in navigation keeps every destination reachable',{timeout:60000},async()=>{
  const port=await freePort(),base=`http://127.0.0.1:${port}`,dir=mkdtempSync(join(tmpdir(),'comelibro-responsive-'));
  const runtime=createApp({dataDir:dir,worker:false,env:{NODE_ENV:'test',APP_ORIGIN:base}});
  const server=runtime.app.listen(port,'127.0.0.1');
@@ -111,6 +111,22 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
   await page.setViewportSize({width:768,height:1024});
   assert.equal(await page.getByRole('button',{name:'Menu',exact:true}).count(),0);
   for(const name of ['Library','Review','Settings','Admin'])await page.locator('.topbar').getByRole('link',{name,exact:true}).waitFor();
+
+  runtime.db.prepare("UPDATE users SET role='learner',verified=1,placement=? WHERE id=?").run(JSON.stringify({status:'complete'}),user.id);
+  const uploaded={id:'uploaded-without-plan',title:'Uploaded story',author:'Your upload',chapters:[{id:'uploaded-section-1',title:'Document',sentences:[{id:'uploaded-sentence-1',text:'La casa es pequeña.',page:1,tags:[]}]}]};
+  runtime.db.prepare('INSERT INTO books VALUES(?,?,?,?,?,?)').run(uploaded.id,user.id,JSON.stringify(uploaded),'ready',null,new Date().toISOString());
+  await page.goto(`${base}/#/`);await page.reload({waitUntil:'networkidle'});
+  const addPdf=page.getByRole('link',{name:'Add a PDF',exact:true});await addPdf.waitFor();await addPdf.click();await page.waitForURL(/#\/upload$/);
+  assert.match(await page.locator('body').innerText(),/PDF processing is unavailable\./);
+  await page.goto(`${base}/#/book/${uploaded.id}`,{waitUntil:'networkidle'});
+  await page.getByText('No lesson plan yet',{exact:false}).waitFor();
+  await page.getByRole('button',{name:'Generate lesson plan',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Remove document',exact:true}).click();
+  const dialog=page.getByRole('dialog',{name:'Remove this document?'}),remove=dialog.getByRole('button',{name:'Remove document',exact:true});
+  assert.equal(await remove.isDisabled(),true);
+  await dialog.getByLabel('Type REMOVE to confirm').fill('REMOVE');
+  assert.equal(await remove.isEnabled(),true);
+  await dialog.getByRole('button',{name:'Keep document',exact:true}).click();
 
   const crispContext=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3});
   const crisp=await crispContext.newPage();
