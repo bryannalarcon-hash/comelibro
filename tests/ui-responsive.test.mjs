@@ -1,0 +1,104 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {createServer} from 'node:net';
+import {chromium} from '@playwright/test';
+import {createApp} from '../server/app.mjs';
+
+const executablePath='/home/ubuntu/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome';
+
+async function freePort(){
+ const socket=createServer().listen(0,'127.0.0.1');
+ await new Promise((resolve,reject)=>{socket.once('listening',resolve);socket.once('error',reject)});
+ const port=socket.address().port;
+ await new Promise(resolve=>socket.close(resolve));
+ return port;
+}
+
+test('adaptive signed-in navigation keeps every destination reachable',{timeout:30000},async()=>{
+ const port=await freePort(),base=`http://127.0.0.1:${port}`,dir=mkdtempSync(join(tmpdir(),'comelibro-responsive-'));
+ const runtime=createApp({dataDir:dir,worker:false,env:{NODE_ENV:'test',APP_ORIGIN:base}});
+ const server=runtime.app.listen(port,'127.0.0.1');
+ await new Promise((resolve,reject)=>{server.once('listening',resolve);server.once('error',reject)});
+ const browser=await chromium.launch({headless:true,executablePath});
+ try{
+  const page=await browser.newPage({viewport:{width:320,height:568}});
+  await page.goto(base,{waitUntil:'networkidle'});
+  assert.equal(await page.getByRole('button',{name:'Menu',exact:true}).count(),0);
+  await page.getByRole('link',{name:'Library',exact:true}).waitFor();
+  await page.getByRole('link',{name:'Sign in',exact:true}).waitFor();
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth===document.documentElement.clientWidth),true);
+  await page.goto(`${base}/#/reader/don-quixote`,{waitUntil:'networkidle'});
+  assert.equal(await page.getByRole('button',{name:'Menu',exact:true}).count(),0);
+  await page.getByRole('link',{name:'Sign in',exact:true}).waitFor();
+  await page.goto(base,{waitUntil:'networkidle'});
+
+  assert.equal(await page.evaluate(async()=>(await fetch('/api/auth/demo',{method:'POST'})).status),201);
+  const user=await page.evaluate(async()=>(await (await fetch('/api/bootstrap')).json()).user);
+  for(let i=0;i<12;i++)runtime.db.prepare('INSERT INTO vocabulary VALUES(?,?,?,?,?,?,?,?,?)').run(`nav-${i}`,user.id,'don-quixote','dq-opening-1-s1',`front ${i}`,`back ${i}`,'{}','2000-01-01T00:00:00.000Z',new Date().toISOString());
+  await page.reload({waitUntil:'networkidle'});
+
+  const menu=page.getByRole('button',{name:'Menu',exact:true});
+  await menu.waitFor({timeout:2000});
+  assert.equal(await menu.getAttribute('aria-haspopup'),'dialog');
+  assert.equal(await menu.getAttribute('aria-expanded'),'false');
+  assert.deepEqual(await menu.evaluate(el=>{const r=el.getBoundingClientRect();return [r.width>=44,r.height>=44]}),[true,true]);
+  await menu.click();
+  const sheet=page.getByRole('dialog',{name:'Menu'});
+  await sheet.waitFor();
+  assert.equal(await menu.getAttribute('aria-expanded'),'true');
+  await sheet.getByText('Demo reader',{exact:true}).waitFor();
+  for(const name of ['Library','Review','Settings']){
+   const link=sheet.getByRole('link',{name,exact:true});
+   await link.waitFor();
+   assert.deepEqual(await link.evaluate(el=>{const r=el.getBoundingClientRect();return [r.width>=44,r.height>=44]}),[true,true]);
+  }
+  assert.equal(await sheet.getByRole('link',{name:'Library',exact:true}).getAttribute('aria-current'),'page');
+  assert.equal(await sheet.getByRole('link',{name:'Admin',exact:true}).count(),0);
+  assert.equal(await sheet.getByRole('link',{name:'Review',exact:true}).textContent(),'Review12');
+
+  await page.keyboard.press('Escape');
+  await sheet.waitFor({state:'detached'});
+  assert.equal(await menu.getAttribute('aria-expanded'),'false');
+  assert.equal(await page.evaluate(()=>document.activeElement?.textContent?.trim()),'Menu');
+
+  await menu.click();
+  await page.mouse.click(1,1);
+  await sheet.waitFor({state:'detached'});
+  assert.equal(await page.evaluate(()=>document.activeElement?.textContent?.trim()),'Menu');
+
+  await menu.click();
+  await sheet.getByRole('link',{name:'Review',exact:true}).click();
+  await page.waitForURL(/#\/reviews$/);
+  await sheet.waitFor({state:'detached'});
+  assert.equal(await page.evaluate(()=>document.activeElement?.id),'main');
+
+  runtime.db.prepare("UPDATE users SET role='admin' WHERE id=?").run(user.id);
+  await page.reload({waitUntil:'networkidle'});
+  await page.getByRole('button',{name:'Menu',exact:true}).click();
+  await page.getByRole('dialog',{name:'Menu'}).getByRole('link',{name:'Admin',exact:true}).waitFor();
+  await page.keyboard.press('Escape');
+
+  await page.setViewportSize({width:844,height:390});
+  await page.goto(`${base}/#/reader/don-quixote`,{waitUntil:'networkidle'});
+  const readerMenu=page.locator('.reader-toolbar').getByRole('button',{name:'Menu',exact:true});
+  await readerMenu.waitFor();
+  await readerMenu.click();
+  await page.getByRole('dialog',{name:'Menu'}).getByRole('link',{name:'Settings',exact:true}).waitFor();
+  await page.keyboard.press('Escape');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth===document.documentElement.clientWidth),true);
+
+  await page.goto(`${base}/#/`,{waitUntil:'networkidle'});
+  await page.setViewportSize({width:768,height:1024});
+  assert.equal(await page.getByRole('button',{name:'Menu',exact:true}).count(),0);
+  for(const name of ['Library','Review','Settings','Admin'])await page.locator('.topbar').getByRole('link',{name,exact:true}).waitFor();
+ }finally{
+  await browser.close();
+  server.closeAllConnections();
+  await new Promise(resolve=>server.close(resolve));
+  await runtime.close();
+  rmSync(dir,{recursive:true,force:true});
+ }
+});
