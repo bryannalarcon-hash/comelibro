@@ -115,8 +115,11 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
   runtime.db.prepare("UPDATE users SET role='learner',verified=1,placement=? WHERE id=?").run(JSON.stringify({status:'complete'}),user.id);
   const uploaded={id:'uploaded-without-plan',title:'Uploaded story',author:'Your upload',chapters:[{id:'uploaded-section-1',title:'Document',sentences:[{id:'uploaded-sentence-1',text:'La casa es pequeña.',page:1,tags:[]}]}]};
   runtime.db.prepare('INSERT INTO books VALUES(?,?,?,?,?,?)').run(uploaded.id,user.id,JSON.stringify(uploaded),'ready',null,new Date().toISOString());
+  await page.evaluate(id=>localStorage.setItem(`comelibro:job:${id}:upload`,JSON.stringify('deleted-upload-job')),user.id);
   await page.goto(`${base}/#/`);await page.reload({waitUntil:'networkidle'});
   const addPdf=page.getByRole('link',{name:'Add a PDF',exact:true});await addPdf.waitFor();await addPdf.click();await page.waitForURL(/#\/upload$/);
+  await page.getByText('Choose your Spanish PDF',{exact:true}).waitFor();
+  assert.equal(await page.getByText('This processing request is unavailable.',{exact:true}).count(),0);
   assert.match(await page.locator('body').innerText(),/PDF processing is unavailable\./);
   await page.goto(`${base}/#/book/${uploaded.id}`,{waitUntil:'networkidle'});
   await page.getByText('No lesson plan yet',{exact:false}).waitFor();
