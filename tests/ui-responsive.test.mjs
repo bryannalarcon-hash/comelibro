@@ -1,13 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,rmSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+import {existsSync,mkdtempSync,readdirSync,rmSync} from 'node:fs';
+import {homedir,tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createServer} from 'node:net';
 import {chromium} from '@playwright/test';
 import {createApp} from '../server/app.mjs';
 
-const executablePath='/home/ubuntu/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome';
+const cache=process.env.PLAYWRIGHT_BROWSERS_PATH||join(homedir(),'.cache','ms-playwright');
+const installed=existsSync(cache)?readdirSync(cache).filter(name=>/^chromium-\d+$/.test(name)).sort().reverse().map(name=>join(cache,name,'chrome-linux64','chrome')):[];
+const executablePath=[process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,chromium.executablePath(),...installed].find(path=>path&&existsSync(path));
+if(!executablePath)throw new Error('Install Playwright Chromium or set PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH.');
 
 async function freePort(){
  const socket=createServer().listen(0,'127.0.0.1');
@@ -75,11 +78,19 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
   await sheet.waitFor({state:'detached'});
   assert.equal(await page.evaluate(()=>document.activeElement?.id),'main');
 
+  await page.goto(`${base}/#/lesson/dq-opening-1-place-and-memory`,{waitUntil:'networkidle'});
+  await page.getByRole('button',{name:/Try the first question/}).click();
+  for(const [name,control] of [['choice',page.locator('.choices label').first()],['report',page.locator('.lesson-footer .text-button')],['reminder',page.locator('.lesson-reminder>summary')]])assert.deepEqual(await control.evaluate(el=>{const r=el.getBoundingClientRect();return [r.height>=44,getComputedStyle(el).fontSize==='16px']}),[true,true],name);
+  await page.goto(`${base}/#/settings`,{waitUntil:'networkidle'});
+  for(const [name,control] of [['theme',page.locator('.theme-options label').first()],['privacy',page.locator('.privacy-note summary')]])assert.deepEqual(await control.evaluate(el=>{const r=el.getBoundingClientRect();return [r.height>=44,getComputedStyle(el).fontSize==='16px']}),[true,true],name);
+
   runtime.db.prepare("UPDATE users SET role='admin' WHERE id=?").run(user.id);
   await page.reload({waitUntil:'networkidle'});
   await page.getByRole('button',{name:'Menu',exact:true}).click();
   await page.getByRole('dialog',{name:'Menu'}).getByRole('link',{name:'Admin',exact:true}).waitFor();
   await page.keyboard.press('Escape');
+  await page.goto(`${base}/#/admin`,{waitUntil:'networkidle'});
+  assert.deepEqual(await page.locator('.admin-tabs a').first().evaluate(el=>{const r=el.getBoundingClientRect();return [r.height>=44,getComputedStyle(el).fontSize==='16px']}),[true,true]);
 
   await page.setViewportSize({width:844,height:390});
   await page.goto(`${base}/#/reader/don-quixote`,{waitUntil:'networkidle'});
@@ -94,6 +105,13 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
   await page.setViewportSize({width:768,height:1024});
   assert.equal(await page.getByRole('button',{name:'Menu',exact:true}).count(),0);
   for(const name of ['Library','Review','Settings','Admin'])await page.locator('.topbar').getByRole('link',{name,exact:true}).waitFor();
+
+  const crispContext=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3});
+  const crisp=await crispContext.newPage();
+  await crisp.goto(base,{waitUntil:'networkidle'});
+  const mark=await crisp.locator('.hero-mark').evaluate(img=>({source:img.naturalWidth,rendered:img.getBoundingClientRect().width,dpr:devicePixelRatio}));
+  assert.ok(mark.source>=mark.rendered*mark.dpr);
+  await crispContext.close();
  }finally{
   await browser.close();
   server.closeAllConnections();

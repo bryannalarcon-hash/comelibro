@@ -35,3 +35,66 @@ input:not([type=radio]):not([type=range]),textarea,select{border-color:var(--con
 .menu-button{display:none;min-width:44px;min-height:44px;border:1px solid var(--control-border);border-radius:10px;background:var(--surface);color:var(--ink);padding:10px 14px;font-size:1rem;font-weight:650}.reader-menu-button{display:none}html:has(dialog.nav-sheet[open]){overflow:hidden}dialog.nav-sheet{inset:0 0 0 auto;margin:0 0 0 auto;width:min(360px,calc(100% - 24px));max-width:none;height:100dvh;max-height:100dvh;border-radius:20px 0 0 20px;padding:calc(16px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) 20px}.nav-sheet .dialog-head{position:sticky;top:0;background:var(--surface);z-index:1}.nav-identity{display:flex;flex-direction:column;gap:4px;padding:16px 4px 20px;border-bottom:1px solid var(--divider);overflow-wrap:anywhere}.nav-identity span{color:var(--muted);font-size:.875rem}.nav-sheet nav{display:grid;padding-top:12px}.nav-sheet nav a{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:10px 12px;border-radius:10px;color:var(--ink);font-size:1rem;text-decoration:none}.nav-sheet nav a[aria-current=page]{background:var(--learning-soft);color:var(--action);font-weight:650}
 
 @media(max-width:767px),(min-width:768px) and (max-width:1279px) and (max-height:500px){.topbar{height:72px;padding:0 20px;gap:12px;flex-wrap:nowrap}.topbar .signed-nav{display:none}.topbar .anonymous-nav{gap:12px;font-size:1rem}.topbar .anonymous-nav .settings-link{display:none}.topbar .app-menu-button{display:inline-flex;align-items:center;justify-content:center}.topbar.reader-route .app-menu-button{display:none}.reader-toolbar .reader-menu-button{display:inline-flex;align-items:center;justify-content:center}.reader-toolbar{padding:12px 20px}.reader-tools{gap:12px}.reader-tools a{min-height:44px}}
+
+/* The active screens feel like a reading desk; the reader itself stays quiet. */
+.topbar{background:var(--surface)}
+.brand-logo{width:32px;height:32px}
+.topbar nav>a[aria-current=page]{text-decoration:underline;text-decoration-color:var(--gold);text-decoration-thickness:3px;text-underline-offset:8px}
+.button.secondary{border-color:var(--control-border)}
+.hero{position:relative}
+.hero-copy{padding:40px;border-left:5px solid var(--gold);background:var(--surface);border-radius:0 24px 24px 0}
+.hero-copy>p:first-child{font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.7rem,3.2vw,2.75rem);line-height:1.25;letter-spacing:-.035em;color:var(--ink);max-width:19ch;margin:0}
+.hero-mark{position:absolute;left:7%;top:5%;width:64px;height:auto;object-fit:contain}
+.shelf{gap:24px}
+.shelf-book{min-width:0;padding:24px;background:var(--surface);border:1px solid var(--divider);border-radius:16px}
+.book-info p.book-detail{font-size:.8rem}
+.learning-strip{border:0;gap:16px}
+.learning-strip>div{min-width:0;padding:24px 22px 24px 58px;background:var(--surface);border:1px solid var(--divider);border-radius:16px}
+.learning-strip .step-number{left:20px;top:23px;width:28px;height:28px;border:2px solid var(--gold);color:var(--gold);background:var(--surface)}
+.next-step{background:var(--surface);border:1px solid var(--divider);border-left:5px solid var(--gold);box-shadow:0 12px 30px rgb(20 42 69 / 8%)}
+.book-heading{padding:32px;background:var(--surface);border:1px solid var(--divider);border-radius:20px;margin-top:32px}
+.curriculum-layout{align-items:start}
+.learning-path{min-width:0}
+.lesson-path{padding:24px;background:var(--surface);border:1px solid var(--divider);border-radius:16px}
+.plan-aside{border-color:var(--control-border)}
+.job-box,.upload-drop,.lesson-intro,.completion,.flashcard,.settings-preview,.operational-control,.data-detail{border-color:var(--control-border)}
+.choices label.selected,.level-options label.selected,.theme-options label.selected{border-width:2px}
+.answer-feedback{border:1px solid var(--control-border)}
+.answer-feedback.correct{border-left:5px solid var(--success)}
+.answer-feedback.incorrect{border-left:5px solid var(--warning);background:var(--warning-bg)}
+.card-back{border-color:var(--control-border)}
+.rating{border-color:var(--control-border);min-height:72px}
+.account-settings{margin-top:40px;padding:28px;background:var(--surface);border:1px solid var(--divider);border-radius:16px}
+dialog{box-shadow:0 12px 30px rgb(20 42 69 / 20%)}
+.reader-toolbar{background:var(--surface)}
+.reading-page{max-width:70ch}
+
+@media(max-width:767px){
+ .main{padding-left:20px;padding-right:20px}
+ .hero{display:flex;flex-direction:column;padding-top:28px;gap:20px}
+ .hero-copy{order:0;padding:28px 24px;border-radius:0 18px 18px 0}
+ .hero-copy>p:first-child{font-size:1.85rem}
+ .hero-book{order:1;margin:0;min-height:300px}
+ .hero-mark{left:14px;top:6px;width:64px}
+ .shelf{grid-template-columns:1fr}
+ .shelf-book{padding:20px}
+ .learning-strip{grid-template-columns:1fr}
+ .learning-strip>div{padding:22px 20px 22px 58px}
+ .learning-strip .step-number{top:21px}
+ .book-heading{padding:24px 20px;margin-top:20px}
+ .lesson-path{padding:20px 16px}
+ input:not([type=radio]):not([type=range]),textarea,select,.button,.menu-button{font-size:16px}
+ .book-heading>.button,.lesson-path .button,.plan-aside .button,.chapter-nav>.button,.chapter-pagination .button,.assistance-actions .button,.job-box .button,.admin-tabs a,.admin-tabs button,.choices label,.level-options label,.theme-options label,.rating,.text-button,summary{min-height:44px;font-size:16px}
+ .reader-tools>a:last-child{display:none}
+ .reader-tools>a:first-child{width:44px;height:44px;justify-content:center}
+ .toast{position:static;transform:none;max-width:none;margin:12px 20px 0}
+ dialog.reading-help-modal{inset:0;margin:0;width:100%;max-width:none;height:100dvh;max-height:100dvh;border:0;border-radius:0;padding:calc(14px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));overflow:auto}
+ .reading-help-modal .dialog-head{position:sticky;top:calc(-14px - env(safe-area-inset-top));z-index:2;margin:calc(-14px - env(safe-area-inset-top)) -20px 16px;padding:calc(14px + env(safe-area-inset-top)) 20px 12px;background:var(--surface);border-bottom:1px solid var(--divider)}
+ .reading-help-modal input,.reading-help-modal textarea,.reading-help-modal .button{font-size:16px}
+ .help-actions .button{min-height:44px}
+}
+
+@media(min-width:768px) and (max-width:1279px) and (max-height:500px){
+ dialog.reading-help-modal{max-height:100dvh}
+ .hero{padding-top:32px;padding-bottom:32px}
+}
