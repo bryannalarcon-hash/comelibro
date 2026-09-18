@@ -14,7 +14,7 @@ await mkdir(output);
 const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 const files = [
   'package.json', 'package-lock.json', 'requirements-pdf.txt', 'THIRD_PARTY_NOTICES.md',
-  'server/ai.mjs', 'server/app.mjs', 'server/index.mjs', 'server/mail.mjs',
+  'server/ai.mjs', 'server/ai-socket.mjs', 'server/ai-worker.mjs', 'server/app.mjs', 'server/index.mjs', 'server/mail.mjs',
   'server/models.mjs', 'server/pdf.mjs', 'server/pdf-worker.py', 'server/store.mjs',
   'content/catalog.json', 'content/don-quixote.json',
   'content/fixtures/sample-scan.pdf', 'content/fixtures/sample-spanish.txt', 'content/fixtures/sample-text.pdf',

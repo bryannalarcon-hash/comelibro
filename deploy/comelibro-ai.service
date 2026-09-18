@@ -1,0 +1,36 @@
+[Unit]
+Description=Comelibro demo and trusted owner AI worker
+After=network-online.target user@1000.service
+Wants=network-online.target
+Requires=user@1000.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=comelibro
+WorkingDirectory=/srv/comelibro/current
+EnvironmentFile=/etc/comelibro/ai-worker.env
+ExecStart=/usr/bin/node server/ai-worker.mjs
+RuntimeDirectory=comelibro-ai
+RuntimeDirectoryMode=0750
+UMask=0077
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+KillMode=control-group
+NoNewPrivileges=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+MemoryHigh=1G
+MemoryMax=1536M
+TasksMax=128
+LimitNOFILE=4096
+# Nested native workers retain their existing Bubblewrap and per-task systemd limits.
+# Filesystem namespace directives here trigger the documented host AppArmor denial.
+# This trusted worker is the only parent process running as ubuntu; the web unit stays isolated.
+
+[Install]
+WantedBy=multi-user.target
