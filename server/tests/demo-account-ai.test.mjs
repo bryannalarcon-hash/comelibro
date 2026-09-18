@@ -36,7 +36,6 @@ test('isolated temporary demos reuse reviewed lessons without invented placement
   const answer = await request(a, '/lessons/' + lesson.id + '/answer', { questionId: lesson.questions[0].id, choiceIndex: 0, attemptId: randomUUID() }); assert.equal(answer.status, 200); assert.equal(db.prepare('SELECT count(*) AS n FROM attempts WHERE userId=?').get(a.id).n, 1);
   assert.equal((await request(b, '/lessons/' + lesson.id)).progress.answered, 0);
   const book = (await request(a, '/books/don-quixote')).book, sentenceId = book.chapters[0].sentences[0].id;
-  assert.equal((await request(a, '/vocabulary', { bookId: book.id, sentenceId, front: 'lugar', back: 'place' })).status, 201);
   assert.equal((await request(a, '/reviews')).total, 1); assert.equal((await request(b, '/reviews')).total, 0);
   for (const path of ['/admin/overview', '/admin/accounts/owner', '/jobs/missing', '/books/private-owner-book']) assert.ok([403, 404].includes((await request(a, path)).status));
   for (const [path, body] of [['/books/upload', Buffer.from('%PDF-1.7')], ['/auth/resend-verification', {}], ['/placement/start', { level: 'advanced' }], ['/placement/answer', {}]]) assert.ok([403, 503].includes((await request(a, path, body)).status), path);

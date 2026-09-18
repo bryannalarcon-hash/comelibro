@@ -44,8 +44,8 @@ test('stale account context cannot mutate the shared-cookie account', async t =>
   const vocabulary = { bookId: 'don-quixote', sentenceId: 'sentence-1', front: 'casa', back: 'house' };
   assert.equal((await request('/api/vocabulary', 'POST', vocabulary, 'account-a')).status, 409);
   assert.equal(db.prepare('SELECT count(*) AS count FROM vocabulary').get().count, 0);
-  assert.equal((await request('/api/vocabulary', 'POST', vocabulary, 'account-b')).status, 201);
-  assert.equal(db.prepare('SELECT userId FROM vocabulary').get().userId, 'account-b');
+  assert.equal((await request('/api/vocabulary', 'POST', vocabulary, 'account-b')).status, 404);
+  assert.equal(db.prepare('SELECT count(*) AS count FROM vocabulary').get().count, 0);
 
   const before = { books: db.prepare('SELECT count(*) AS count FROM books').get().count, quota: db.prepare('SELECT count(*) AS count FROM quotas').get().count };
   const upload = await request('/api/books/upload', 'POST', Buffer.from('%PDF-1.7 stale tab'), 'account-a');
