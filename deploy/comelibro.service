@@ -11,7 +11,6 @@ WorkingDirectory=/srv/comelibro/current
 EnvironmentFile=/etc/comelibro/comelibro.env
 Environment=NODE_ENV=production
 Environment=PORT=3300
-Environment=AI_PUBLIC_ENABLED=false
 ExecStart=/usr/bin/node server/index.mjs
 Restart=on-failure
 RestartSec=5
