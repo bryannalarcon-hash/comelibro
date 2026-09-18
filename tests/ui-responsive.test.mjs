@@ -5,6 +5,7 @@ import {homedir,tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createServer} from 'node:net';
 import {chromium} from '@playwright/test';
+import {createEmptyCard} from 'ts-fsrs';
 import {createApp} from '../server/app.mjs';
 
 const cache=process.env.PLAYWRIGHT_BROWSERS_PATH||join(homedir(),'.cache','ms-playwright');
@@ -41,7 +42,7 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
 
   assert.equal(await page.evaluate(async()=>(await fetch('/api/auth/demo',{method:'POST'})).status),201);
   const user=await page.evaluate(async()=>(await (await fetch('/api/bootstrap')).json()).user);
-  for(let i=0;i<12;i++)runtime.db.prepare('INSERT INTO vocabulary VALUES(?,?,?,?,?,?,?,?,?)').run(`nav-${i}`,user.id,'don-quixote','dq-opening-1-s1',`front ${i}`,`back ${i}`,'{}','2000-01-01T00:00:00.000Z',new Date().toISOString());
+  for(let i=0;i<12;i++)runtime.db.prepare('INSERT INTO vocabulary VALUES(?,?,?,?,?,?,?,?,?)').run(`nav-${i}`,user.id,'don-quixote','dq-opening-1-s1',`front ${i}`,`back ${i}`,JSON.stringify(createEmptyCard(new Date('2000-01-01T00:00:00.000Z'))),'2000-01-01T00:00:00.000Z',new Date().toISOString());
   await page.reload({waitUntil:'networkidle'});
   await page.getByRole('heading',{name:'Library',exact:true}).waitFor();
   await page.getByRole('link',{name:'Comelibro home'}).click();
@@ -79,10 +80,30 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
   assert.equal(await page.evaluate(()=>document.activeElement?.textContent?.trim()),'Menu');
 
   await menu.click();
+  await sheet.getByRole('button',{name:'Translator',exact:true}).click();
+  const translator=page.getByRole('dialog',{name:'Translator'});
+  await translator.getByLabel('Spanish text').waitFor();
+  await translator.getByRole('button',{name:'Translate to English',exact:true}).waitFor();
+  await translator.getByRole('button',{name:'Close dialog'}).click();
+
+  await menu.click();
   await sheet.getByRole('link',{name:'Review',exact:true}).click();
   await page.waitForURL(/#\/reviews$/);
   await sheet.waitFor({state:'detached'});
   assert.equal(await page.evaluate(()=>document.activeElement?.id),'main');
+  const firstCard=await page.locator('.flashcard h2').textContent();
+  await page.getByRole('button',{name:'Show answer',exact:true}).click();
+  await page.getByRole('button',{name:/^Good/}).click();
+  await page.waitForFunction(previous=>document.querySelector('.flashcard h2')?.textContent!==previous,firstCard);
+  assert.equal(await page.getByText('Review saved',{exact:true}).count(),0);
+  assert.equal((await page.locator('body').innerText()).includes('due again'),false);
+
+  const future=runtime.db.prepare('SELECT id FROM vocabulary WHERE userId=? ORDER BY id').all(user.id);
+  future.forEach((item,index)=>runtime.db.prepare('UPDATE vocabulary SET due=? WHERE id=?').run(new Date(Date.now()+(index+1)*86400000).toISOString(),item.id));
+  await page.reload({waitUntil:'networkidle'});
+  await page.getByRole('heading',{name:'Coming up',exact:true}).waitFor();
+  const upcomingDates=await page.locator('.upcoming-reviews time').evaluateAll(nodes=>nodes.map(node=>Date.parse(node.dateTime)));
+  assert.deepEqual(upcomingDates,[...upcomingDates].sort((a,b)=>a-b));
 
   await page.goto(`${base}/#/lesson/dq-opening-1-place-and-memory`,{waitUntil:'networkidle'});
   await page.getByRole('button',{name:/Start questions/}).click();
@@ -100,6 +121,7 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
 
   await page.setViewportSize({width:844,height:390});
   await page.goto(`${base}/#/reader/don-quixote`,{waitUntil:'networkidle'});
+  assert.deepEqual(await page.locator('.reader-toolbar').evaluate(el=>{const r=el.getBoundingClientRect();return [Math.round(r.left),Math.round(r.width),innerWidth]}),[0,844,844]);
   const readerMenu=page.locator('.reader-toolbar').getByRole('button',{name:'Menu',exact:true});
   await readerMenu.waitFor();
   await readerMenu.click();
@@ -111,6 +133,9 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
   await page.setViewportSize({width:768,height:1024});
   assert.equal(await page.getByRole('button',{name:'Menu',exact:true}).count(),0);
   for(const name of ['Library','Review','Settings','Admin'])await page.locator('.topbar').getByRole('link',{name,exact:true}).waitFor();
+  await page.locator('.topbar').getByRole('button',{name:'Translator',exact:true}).waitFor();
+  assert.deepEqual(await page.locator('.topbar').evaluate(el=>{const r=el.getBoundingClientRect();return [Math.round(r.left),Math.round(r.width),innerWidth]}),[0,768,768]);
+  assert.deepEqual(await page.locator('.avatar').evaluate(el=>{const r=el.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(el);const t=range.getBoundingClientRect();return [Math.abs(r.left+r.width/2-(t.left+t.width/2))<1,Math.abs(r.top+r.height/2-(t.top+t.height/2))<1,Math.round(r.width),Math.round(r.height)]}),[true,true,35,35]);
 
   runtime.db.prepare("UPDATE users SET role='learner',verified=1,placement=? WHERE id=?").run(JSON.stringify({status:'complete'}),user.id);
   const uploaded={id:'uploaded-without-plan',title:'Uploaded story',author:'Your upload',chapters:[{id:'uploaded-section-1',title:'Document',sentences:[{id:'uploaded-sentence-1',text:'La casa es pequeña.',page:1,tags:[]}]}]};
@@ -123,7 +148,7 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
   assert.match(await page.locator('body').innerText(),/PDF processing is unavailable\./);
   await page.goto(`${base}/#/book/${uploaded.id}`,{waitUntil:'networkidle'});
   await page.getByText('No lesson plan yet',{exact:false}).waitFor();
-  await page.getByRole('button',{name:'Generate lesson plan',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Generate lessons',exact:true}).waitFor();
   await page.getByRole('button',{name:'Remove document',exact:true}).click();
   const dialog=page.getByRole('dialog',{name:'Remove this document?'}),remove=dialog.getByRole('button',{name:'Remove document',exact:true});
   assert.equal(await remove.isDisabled(),true);
