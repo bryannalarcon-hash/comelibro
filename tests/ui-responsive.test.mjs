@@ -30,7 +30,8 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
   const page=await browser.newPage({viewport:{width:320,height:568}});
   await page.goto(base,{waitUntil:'networkidle'});
   assert.equal(await page.getByRole('button',{name:'Menu',exact:true}).count(),0);
-  await page.getByRole('link',{name:'Library',exact:true}).waitFor();
+  await page.getByText('Choose Don Quijote or upload a short Spanish PDF.',{exact:false}).waitFor();
+  assert.equal(await page.getByRole('link',{name:'Comelibro home'}).getAttribute('href'),'#/welcome');
   await page.getByRole('link',{name:'Sign in',exact:true}).waitFor();
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth===document.documentElement.clientWidth),true);
   await page.goto(`${base}/#/reader/don-quixote`,{waitUntil:'networkidle'});
@@ -42,6 +43,11 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
   const user=await page.evaluate(async()=>(await (await fetch('/api/bootstrap')).json()).user);
   for(let i=0;i<12;i++)runtime.db.prepare('INSERT INTO vocabulary VALUES(?,?,?,?,?,?,?,?,?)').run(`nav-${i}`,user.id,'don-quixote','dq-opening-1-s1',`front ${i}`,`back ${i}`,'{}','2000-01-01T00:00:00.000Z',new Date().toISOString());
   await page.reload({waitUntil:'networkidle'});
+  await page.getByRole('heading',{name:'Library',exact:true}).waitFor();
+  await page.getByRole('link',{name:'Comelibro home'}).click();
+  await page.waitForURL(/#\/welcome$/);
+  await page.getByText('Choose Don Quijote or upload a short Spanish PDF.',{exact:false}).waitFor();
+  await page.goto(`${base}/#/`,{waitUntil:'networkidle'});
 
   const menu=page.getByRole('button',{name:'Menu',exact:true});
   await menu.waitFor({timeout:2000});
@@ -79,7 +85,7 @@ test('adaptive signed-in navigation keeps every destination reachable',{timeout:
   assert.equal(await page.evaluate(()=>document.activeElement?.id),'main');
 
   await page.goto(`${base}/#/lesson/dq-opening-1-place-and-memory`,{waitUntil:'networkidle'});
-  await page.getByRole('button',{name:/Try the first question/}).click();
+  await page.getByRole('button',{name:/Start questions/}).click();
   for(const [name,control] of [['choice',page.locator('.choices label').first()],['report',page.locator('.lesson-footer .text-button')],['reminder',page.locator('.lesson-reminder>summary')]])assert.deepEqual(await control.evaluate(el=>{const r=el.getBoundingClientRect();return [r.height>=44,getComputedStyle(el).fontSize==='16px']}),[true,true],name);
   await page.goto(`${base}/#/settings`,{waitUntil:'networkidle'});
   for(const [name,control] of [['theme',page.locator('.theme-options label').first()],['privacy',page.locator('.privacy-note summary')]])assert.deepEqual(await control.evaluate(el=>{const r=el.getBoundingClientRect();return [r.height>=44,getComputedStyle(el).fontSize==='16px']}),[true,true],name);

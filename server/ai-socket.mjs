@@ -77,7 +77,7 @@ export function createAiWorker({ allowedUserId, runTask = nativeTask, limits = S
       }
       const task = JSON.parse(Buffer.concat(chunks).toString('utf8'));
       const identity = typeof task?.accountId === 'string' && task.accountId.length <= 200 && (task.accountId === allowedUserId && ['learner', 'admin'].includes(task.accountRole) || task.accountRole === 'demo' && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(task.accountId));
-      if (!identity || !['help', 'curriculum'].includes(task.kind) || Object.keys(task).some(key => !['accountId', 'accountRole', 'kind', 'input'].includes(key))) { res.writeHead(403).end(); return; }
+      if (!identity || !['help', 'document', 'curriculum'].includes(task.kind) || Object.keys(task).some(key => !['accountId', 'accountRole', 'kind', 'input'].includes(key))) { res.writeHead(403).end(); return; }
       const input = cleanInput(task.kind, task.input);
       controller.signal.throwIfAborted();
       res.writeHead(200, { 'Content-Type': 'application/x-ndjson', 'Cache-Control': 'no-store' });

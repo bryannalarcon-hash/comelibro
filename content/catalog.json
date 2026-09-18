@@ -339,7 +339,7 @@
       "estimatedMinutes": 6,
       "readingGoal": "Understand why the narrator withholds the place name and place the hidalgo's life in the past.",
       "objectiveIds": ["archaic-temporal-haber", "imperfect-background", "negation-scope", "acordarse-de", "possessive-cuyo", "hidalgo-contextual-meaning"],
-      "explanation": "The opening moves through a relative clause before reaching its main past description. In de cuyo nombre no quiero acordarme, cuyo connects nombre to lugar, no negates quiero, and acordarme uses the complement de, moved before cuyo. The phrase no ha mucho tiempo means not long ago in this older temporal use of haber; vivía then supplies the continuing past background.",
+      "explanation": "The opening moves through a relative clause before reaching its main past description. In «de cuyo nombre no quiero acordarme», «cuyo» connects «nombre» to «lugar», «no» negates «quiero», and «acordarme» uses the complement «de», moved before «cuyo». The phrase «no ha mucho tiempo» means not long ago in this older temporal use of «haber»; «vivía» then supplies the continuing past background.",
       "examples": [
         {"es": "Conocí a un músico cuyo nombre no recuerdo.", "en": "I met a musician whose name I do not remember."},
         {"es": "No hace mucho tiempo, vivía cerca del río.", "en": "Not long ago, I lived near the river."}
@@ -352,7 +352,7 @@
           "version": 2,
           "objectiveVersion": 1,
           "objectiveId": "negation-scope",
-          "prompt": "In no quiero acordarme, which idea does no negate?",
+          "prompt": "In «no quiero acordarme», which idea does «no» negate?",
           "choices": [
             "That the place has a name",
             "That the hidalgo lived there",
@@ -360,7 +360,7 @@
             "That the place is in La Mancha"
           ],
           "answerIndex": 2,
-          "explanation": "No directly negates quiero: the narrator says he does not want to recall the name.",
+          "explanation": "«No» directly negates «quiero»: the narrator says he does not want to recall the name.",
           "type": "target-form",
           "sourceSpan": {
             "sentenceId": "dq-1.1-1",
@@ -379,10 +379,10 @@
           "version": 1,
           "objectiveVersion": 1,
           "objectiveId": "possessive-cuyo",
-          "prompt": "In de cuyo nombre, what does cuyo connect nombre to?",
+          "prompt": "In «de cuyo nombre», what does «cuyo» connect «nombre» to?",
           "choices": ["lugar", "Mancha", "tiempo", "hidalgo"],
           "answerIndex": 0,
-          "explanation": "Cuyo introduces a possessive relation: the name belongs to the previously mentioned lugar.",
+          "explanation": "«Cuyo» introduces a possessive relation: the name belongs to the previously mentioned «lugar».",
           "type": "target-form",
           "sourceSpan": {"sentenceId": "dq-1.1-1", "text": "de cuyo nombre"},
           "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "Lugar is the clear antecedent of cuyo, while the form agrees with nombre; the source span is exact.", "version": 1}
@@ -392,10 +392,10 @@
           "version": 1,
           "objectiveVersion": 1,
           "objectiveId": "possessive-cuyo",
-          "prompt": "Fresh example: In Saludé al vecino cuya hija estudia música, who is the daughter related to?",
+          "prompt": "Fresh example: In «Saludé al vecino cuya hija estudia música», who is the daughter related to?",
           "choices": ["The speaker", "Music", "An unnamed teacher", "The neighbor"],
           "answerIndex": 3,
-          "explanation": "Cuya links hija to el vecino and agrees with the feminine singular noun hija.",
+          "explanation": "«Cuya» links «hija» to «el vecino» and agrees with the feminine singular noun «hija».",
           "type": "fresh-transfer",
           "sourceSpan": {"sentenceId": "dq-1.1-1", "text": "de cuyo nombre"},
           "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "The fresh sentence is grammatical and tests the same possessive-relative relation shown by the exact book span.", "version": 1}
@@ -413,7 +413,7 @@
             "He is cancelling their first excursion together."
           ],
           "answerIndex": 2,
-          "explanation": "Me acuerdo de means I remember: Luis recalls their first excursion. Acordarse de expresses remembering, rather than arranging or agreeing on something.",
+          "explanation": "«Me acuerdo de» means I remember: Luis recalls their first excursion. «Acordarse de» expresses remembering, rather than arranging or agreeing on something.",
           "type": "fresh-transfer",
           "sourceSpan": {
             "sentenceId": "dq-1.1-1",
@@ -431,10 +431,10 @@
           "version": 1,
           "objectiveVersion": 1,
           "objectiveId": "imperfect-background",
-          "prompt": "What role does vivía play in the opening?",
+          "prompt": "What role does «vivía» play in the opening?",
           "choices": ["It commands the hidalgo to live", "It predicts his future home", "It describes the hidalgo's continuing past situation", "It reports one completed arrival"],
           "answerIndex": 2,
-          "explanation": "The imperfect vivía establishes the background situation in which the story begins.",
+          "explanation": "The imperfect «vivía» establishes the background situation in which the story begins.",
           "type": "target-comprehension",
           "sourceSpan": {"sentenceId": "dq-1.1-1", "text": "vivía un hidalgo"},
           "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "Vivía provides the opening background state; the alternatives express imperative, future, or bounded-event readings.", "version": 1}
@@ -450,7 +450,7 @@
       "estimatedMinutes": 7,
       "readingGoal": "Follow the long food list and understand what it says about the hidalgo's recurring expenses.",
       "objectiveIds": ["imperfect-background", "article-adjective-agreement", "noun-quantity-comparison", "fractional-three-parts", "weekday-habit"],
-      "explanation": "The foods form a long plural subject whose verb, consumían, appears near the end. The imperfect presents a customary expense. Los sábados, los viernes, and los domingos describe a weekly routine. Algo más vaca que carnero compares amounts of foods, and las tres partes de su hacienda is glossed here as three quarters of his income.",
+      "explanation": "The foods form a long plural subject whose verb, «consumían», appears near the end. The imperfect presents a customary expense. «Los sábados», «los viernes», and «los domingos» describe a weekly routine. «Algo más vaca que carnero» compares amounts of foods, and «las tres partes de su hacienda» is glossed here as three quarters of his income.",
       "examples": [
         {"es": "Los jueves comíamos más sopa que pan.", "en": "On Thursdays we used to eat more soup than bread."},
         {"es": "El alquiler consumía gran parte de sus ingresos.", "en": "The rent used up a large part of their income."}
@@ -463,7 +463,7 @@
           "version": 1,
           "objectiveVersion": 1,
           "objectiveId": "imperfect-background",
-          "prompt": "What does consumían tell us about the listed meals?",
+          "prompt": "What does «consumían» tell us about the listed meals?",
           "choices": ["They regularly used up much of his income", "They were eaten only once", "They earned money for him", "They were planned for the future"],
           "answerIndex": 0,
           "explanation": "The imperfect presents this spending as part of the household's customary past routine.",
@@ -479,7 +479,7 @@
           "prompt": "With the passage gloss supplied, how much of his income did the meals consume?",
           "choices": ["About one tenth", "Exactly half", "All of it", "Three quarters"],
           "answerIndex": 3,
-          "explanation": "The edition's opening annotation interprets las tres partes as three of four parts, or three quarters.",
+          "explanation": "The edition's opening annotation interprets «las tres partes» as three of four parts, or three quarters.",
           "type": "target-comprehension",
           "sourceSpan": {"sentenceId": "dq-1.1-2", "text": "las tres partes de su hacienda"},
           "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "CVC opening note 9 explicitly supports three quarters, and the prompt states that the gloss is supplied.", "version": 1}
@@ -489,7 +489,7 @@
           "version": 1,
           "objectiveVersion": 1,
           "objectiveId": "weekday-habit",
-          "prompt": "What do los sábados, los viernes, and los domingos signal?",
+          "prompt": "What do «los sábados», «los viernes», and «los domingos» signal?",
           "choices": ["Three dates in one month", "A single weekend", "Three recurring days in a weekly pattern", "The order of three chapters"],
           "answerIndex": 2,
           "explanation": "Plural weekdays with the definite article describe repeated weekly occasions.",
@@ -502,10 +502,10 @@
           "version": 1,
           "objectiveVersion": 1,
           "objectiveId": "noun-quantity-comparison",
-          "prompt": "Fresh example: What does Preparaban más arroz que verduras compare?",
+          "prompt": "Fresh example: What does «Preparaban más arroz que verduras» compare?",
           "choices": ["The quality of two recipes", "The amounts of rice and vegetables", "Two cooking times", "Past and present meals"],
           "answerIndex": 1,
-          "explanation": "Más arroz que verduras compares quantities of two nouns.",
+          "explanation": "«Más arroz que verduras» compares quantities of two nouns.",
           "type": "fresh-transfer",
           "sourceSpan": {"sentenceId": "dq-1.1-2", "text": "algo más vaca que carnero"},
           "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "The fresh example tests the same noun-quantity comparison illustrated by the exact source construction.", "version": 1}
@@ -518,7 +518,7 @@
           "prompt": "Fresh example: Which sentence clearly describes a recurring habit?",
           "choices": ["El lunes salí temprano.", "Este lunes voy a salir.", "Ayer fue lunes.", "Los lunes salía temprano."],
           "answerIndex": 3,
-          "explanation": "Los lunes marks recurring Mondays, and salía presents the repeated past habit.",
+          "explanation": "«Los lunes» marks recurring Mondays, and «salía» presents the repeated past habit.",
           "type": "fresh-transfer",
           "sourceSpan": {"sentenceId": "dq-1.1-2", "text": "duelos y quebrantos los sábados, lentejas los viernes, algún palomino de añadidura los domingos"},
           "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "The fresh sentence has an explicit recurring weekday and imperfect; the book span supplies the same recurrence pattern.", "version": 1}
@@ -534,7 +534,7 @@
       "estimatedMinutes": 7,
       "readingGoal": "Recover who spends the remaining income, what the clothes are, and how the hidalgo presents himself on weekdays.",
       "objectiveIds": ["imperfect-background", "article-adjective-agreement", "pronominal-se", "postverbal-subject-order", "archaic-della-reference", "velarte-contextual-meaning"],
-      "explanation": "El resto della points back to the hacienda in the previous sentence; della is the older written form de ella. Reading concluían here as used up, its plural ending agrees with the clothing list that follows, so the clothes are the subject and el resto della is the fronted object. A sayo is a garment, while velarte is the cloth used for it. After y, the understood subject changes back to the hidalgo: se honraba describes his self-presentation. Articles and adjectives in a short noun phrase must match the noun's gender and number.",
+      "explanation": "«El resto della» points back to the «hacienda» in the previous sentence; «della» is the older written form «de ella». Reading «concluían» here as used up, its plural ending agrees with the clothing list that follows, so the clothes are the subject and «el resto della» is the fronted object. A «sayo» is a garment, while «velarte» is the cloth used for it. After «y», the understood subject changes back to the hidalgo: «se honraba» describes his self-presentation. Articles and adjectives in a short noun phrase must match the noun's gender and number.",
       "examples": [
         {"es": "El resto del dinero lo consumían los viajes.", "en": "Travel used up the rest of the money."},
         {"es": "Entre semana se vestía con ropa sencilla.", "en": "On weekdays he dressed in simple clothes."}
@@ -547,10 +547,10 @@
           "version": 1,
           "objectiveVersion": 1,
           "objectiveId": "postverbal-subject-order",
-          "prompt": "Reading concluían here as used up, what is the subject that did the using up?",
+          "prompt": "Reading «concluían» here as used up, what is the subject that did the using up?",
           "choices": ["The hidalgo's income", "The hidalgo himself", "The following list of clothes", "The word della alone"],
           "answerIndex": 2,
-          "explanation": "The plural concluían agrees with the clothing list that follows; el resto della is what the clothes used up.",
+          "explanation": "The plural «concluían» agrees with the clothing list that follows; «el resto della» is what the clothes used up.",
           "type": "target-comprehension",
           "sourceSpan": {"sentenceId": "dq-1.1-3", "text": "El resto della concluían sayo de velarte, calzas de velludo"},
           "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "The prompt supplies the lexical gloss and scores only recovery of the postverbal subject from agreement and order.", "version": 1}
@@ -560,10 +560,10 @@
           "version": 1,
           "objectiveVersion": 1,
           "objectiveId": "archaic-della-reference",
-          "prompt": "What does della refer back to?",
+          "prompt": "What does «della» refer back to?",
           "choices": ["The Mancha", "The hacienda or income", "The olla", "The festival"],
           "answerIndex": 1,
-          "explanation": "Della is de ella, and ella resumes hacienda from the previous sentence.",
+          "explanation": "«Della» is «de ella», and «ella» resumes «hacienda» from the previous sentence.",
           "type": "target-comprehension",
           "sourceSpan": {"sentenceId": "dq-1.1-3", "text": "El resto della"},
           "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "Della is de ella and the preceding feminine antecedent hacienda is unique in the passage context.", "version": 1}
@@ -573,7 +573,7 @@
           "version": 2,
           "objectiveVersion": 1,
           "objectiveId": "pronominal-se",
-          "prompt": "In se honraba con su vellorí, honrar concerns a respectable appearance. Which reading does se support here?",
+          "prompt": "In «se honraba con su vellorí», «honrar» concerns a respectable appearance. Which reading does «se» support here?",
           "choices": [
             "The hidalgo used his woolen clothes to present himself respectably.",
             "The hidalgo used his woolen clothes to present another person respectably.",
@@ -581,7 +581,7 @@
             "Another person used the hidalgo’s woolen clothes to present himself respectably."
           ],
           "answerIndex": 0,
-          "explanation": "Here se honraba describes the hidalgo’s own respectable self-presentation in his vellorí. It does not describe him presenting another person.",
+          "explanation": "Here «se honraba» describes the hidalgo’s own respectable self-presentation in his «vellorí». It does not describe him presenting another person.",
           "type": "target-comprehension",
           "sourceSpan": {
             "sentenceId": "dq-1.1-3",
@@ -607,7 +607,7 @@
             "That Lucía is looking in a mirror."
           ],
           "answerIndex": 2,
-          "explanation": "Se explicitly makes Lucía both the person looking and the person looked at. Without se, the sentence still names Lucía as the subject and the mirror as the setting, but it does not specify whom or what she looks at.",
+          "explanation": "«Se» explicitly makes Lucía both the person looking and the person looked at. Without «se», the sentence still names Lucía as the subject and the mirror as the setting, but it does not specify whom or what she looks at.",
           "type": "fresh-transfer",
           "sourceSpan": {
             "sentenceId": "dq-1.1-3",
@@ -628,7 +628,7 @@
           "prompt": "Fresh example: Choose the agreeing phrase.",
           "choices": ["la capa oscuro", "las capas oscuras", "los capa oscuras", "el capas oscuro"],
           "answerIndex": 1,
-          "explanation": "Capas is feminine plural, so both las and oscuras agree with it.",
+          "explanation": "«Capas» is feminine plural, so both «las» and «oscuras» agree with it.",
           "type": "fresh-transfer",
           "sourceSpan": {"sentenceId": "dq-1.1-1", "text": "adarga antigua"},
           "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "Only las capas oscuras has full agreement; adarga antigua is an exact source example of the same construction.", "version": 1}
@@ -638,10 +638,10 @@
           "version": 1,
           "objectiveVersion": 1,
           "objectiveId": "velarte-contextual-meaning",
-          "prompt": "Which word names the cloth used for the sayo?",
+          "prompt": "Which word names the cloth used for the «sayo»?",
           "choices": ["velarte", "sayo", "calzas", "pantuflos"],
           "answerIndex": 0,
-          "explanation": "Velarte is the cloth; sayo names the garment made from it.",
+          "explanation": "«Velarte» is the cloth; «sayo» names the garment made from it.",
           "type": "target-vocabulary",
           "sourceSpan": {"sentenceId": "dq-1.1-3", "text": "sayo de velarte"},
           "review": {"status": "approved", "reviewer": "content_semantic_review / GPT-5.6 Sol", "reason": "CVC opening note 10 identifies velarte as cloth, and the item credits only that one lexical distinction.", "version": 1}

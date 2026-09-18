@@ -8,7 +8,7 @@ import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { PDFDocument, PDFName, PDFHexString, StandardFonts } from 'pdf-lib';
 import { extractPdf, PDF_LIMITS, validatePdfResult } from '../pdf.mjs';
-import { runTask, validateProposal, applyReview, shuffleChoices, redactEvent } from '../ai.mjs';
+import { runTask, validateProposal, applyReview, applyDocumentPlan, shuffleChoices, redactEvent } from '../ai.mjs';
 const root = new URL('../../', import.meta.url);
 const fixture = name => new URL(`content/fixtures/${name}`, root).pathname;
 const directory = await mkdtemp(join(tmpdir(), 'comelibro-runtime-test-'));
@@ -176,6 +176,17 @@ test('structural validation enforces canonical versions, exact spans and fresh p
   p = proposal(); p.lessons[0].examples[0].es = 'Cada lunes, Ana corre.'; assert.throws(() => validateProposal(p, input), { code: 'AI_OUTPUT' });
   p = proposal(); p.lessons[0].questions[0].answerIndex = 10; assert.throws(() => validateProposal(p, input), { code: 'AI_OUTPUT' });
 });
+test('document plans apply only bounded exact edits and ordered source anchors', () => {
+  const pages=[{page:1,text:'REVISTA 7\nCapítulo uno. La casa es pequeña.'},{page:2,text:'Capítulo dos. El perro corre.'}],plan={edits:[{page:1,source:'REVISTA 7\n',replacement:''}],sections:[{title:'Capítulo uno',page:1,anchor:'Capítulo uno.'},{title:'Capítulo dos',page:2,anchor:'Capítulo dos.'}]};
+  const result=applyDocumentPlan(plan,pages,'book-1');
+  assert.equal(result.pages[0].text,'Capítulo uno. La casa es pequeña.');assert.equal(result.chapters.length,2);assert.equal(result.chapters[0].sentences[0].id,'book-1-p1-s1');assert.equal(result.chapters[1].sentences[0].page,2);assert.deepEqual(pages,[{page:1,text:'REVISTA 7\nCapítulo uno. La casa es pequeña.'},{page:2,text:'Capítulo dos. El perro corre.'}]);
+  assert.throws(()=>applyDocumentPlan({...plan,edits:[{page:1,source:'Capítulo',replacement:''}]},pages,'book-1'),{code:'AI_OUTPUT'});
+  assert.throws(()=>applyDocumentPlan({...plan,sections:[{title:'Late',page:2,anchor:'Capítulo dos.'}]},pages,'book-1'),{code:'AI_OUTPUT'});
+  assert.throws(()=>applyDocumentPlan({...plan,edits:[{page:1,source:'REVISTA 7',replacement:'A completely rewritten passage'}]},pages,'book-1'),{code:'AI_OUTPUT'});
+});
+test('curriculum prompts require quoted embedded Spanish', async () => {
+  const source=await readFile(new URL('../ai.mjs',import.meta.url),'utf8');assert.match(source,/Enclose every Spanish word or phrase embedded in English titles/);assert.match(source,/review reasons in plain English, enclosing every embedded Spanish word or phrase in quotation marks/);
+});
 test('questions reuse the objective source anchor instead of drifting to another contained span', () => {
   const p = proposal(); p.lessons[0].questions[0].sourceSpan.text = 'visita';
   assert.throws(() => validateProposal(p, input), { code: 'AI_OUTPUT' });
@@ -239,7 +250,7 @@ test('LIVE curriculum uses source/objective/evidence tools and separate independ
   validateProposal(output, input);
   const starts = events.filter(e => e.phase === 'start');
   assert.equal(starts.length, 2); assert.notEqual(starts[0].invocationId, starts[1].invocationId);
-  assert.deepEqual(starts.map(e => e.promptVersion), ['comelibro-curriculum-v8', 'comelibro-review-v6']);
+  assert.deepEqual(starts.map(e => e.promptVersion), ['comelibro-curriculum-v9', 'comelibro-review-v6']);
   for (const name of ['task_source', 'canonical_objectives', 'learner_evidence', 'proposed_items']) assert.ok(events.some(e => e.phase === 'tool' && e.tool === name));
   assert.ok(output.lessons.every(l => l.questions.every(q => q.review.reviewer.includes('independent-semantic-v6') && q.review.version === q.version)));
   await writeFile(new URL('evidence/runtime/live-curriculum.json', root), JSON.stringify({ actual: true, date: new Date().toISOString(), input, output, events }, null, 2));

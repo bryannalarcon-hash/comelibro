@@ -17,7 +17,7 @@ test('stale account context cannot mutate the shared-cookie account', async t =>
   const question = { id: 'question-1', version: '1', objectiveId: 'objective-1', objectiveVersion: '1', type: 'target-comprehension', prompt: 'What is casa?', choices: ['house', 'horse'], answerIndex: 0, explanation: 'Casa means house.' };
   writeFileSync(join(contentDir, 'catalog.json'), JSON.stringify({ objectives: [{ id: 'objective-1', version: '1', label: 'Casa', description: 'Synthetic', cvc: [] }], placement: [{ id: 'placement-1', version: '1', objectiveId: 'objective-1', objectiveVersion: '1', type: 'multiple-choice', prompt: '¿Casa?', choices: ['House', 'Horse'], answerIndex: 0 }], lessons: [{ id: 'fixture-lesson', bookId: 'don-quixote', title: 'Synthetic', objectiveIds: ['objective-1'], questions: [] }]}));
   writeFileSync(join(contentDir, 'don-quixote.json'), JSON.stringify({ id: 'don-quixote', title: 'Synthetic', author: 'Test', chapters: [{ id: 'chapter-1', title: 'One', sentences: [{ id: 'sentence-1', text: 'La casa es pequeña.', page: 1, tags: [] }] }] }));
-  const runtime = createApp({ dataDir: dir, contentDir, worker: false, env: { NODE_ENV: 'test', APP_ORIGIN: origin } });
+  const runtime = createApp({ dataDir: dir, contentDir, worker: false, env: { NODE_ENV: 'test', APP_ORIGIN: origin }, aiAdapter: { runTask: async () => ({}) } });
   const server = runtime.app.listen(0, '127.0.0.1'); await new Promise(resolve => server.once('listening', resolve));
   t.after(async () => { await new Promise(resolve => server.close(resolve)); await runtime.close(); rmSync(dir, { recursive: true, force: true }); });
   const { db } = runtime, expires = new Date(Date.now() + 86400000).toISOString();
